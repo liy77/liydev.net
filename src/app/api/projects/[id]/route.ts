@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getProjectById, updateProject, deleteProject } from '@/lib/projects'
 import { requireAuth } from '@/lib/auth'
 import { projectWithImageSchema } from '@/lib/validators'
 
+const paramsSchema = z.object({
+  id: z.coerce.number().positive('Invalid project ID'),
+})
+
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const project = getProjectById(Number(params.id))
+  const parsedParams = paramsSchema.safeParse(params)
+  if (!parsedParams.success) {
+    return NextResponse.json({ success: false, error: 'Invalid project ID' }, { status: 400 })
+  }
+
+  const project = getProjectById(parsedParams.data.id)
   if (!project) {
     return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 })
   }
@@ -12,27 +22,69 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
+  const parsedParams = paramsSchema.safeParse(params)
+  if (!parsedParams.success) {
+    return NextResponse.json({ success: false, error: 'Invalid project ID' }, { status: 400 })
+  }
 
-  const body = await request.json()
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  try {
+    await requireAuth()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
   const parsed = projectWithImageSchema.partial().safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ success: false, error: parsed.error.errors[0].message }, { status: 400 })
   }
 
+  const existing = getProjectById(parsedParams.data.id)
+  if (!existing) {
+    return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 })
+  }
+
   try {
-    const project = updateProject(Number(params.id), {
+    const project = updateProject(parsedParams.data.id, {
       ...parsed.data,
-      website_url: parsed.data.website_url || null,
+      website_url: parsed.data.website_url ?? null,
     })
     return NextResponse.json({ success: true, project })
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Project not found or slug conflict' }, { status: 404 })
+    const isUniqueConstraint =
+      error instanceof Error &&
+      ((error as { code?: string }).code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+        error.message.includes('UNIQUE constraint failed'))
+    if (isUniqueConstraint) {
+      return NextResponse.json({ success: false, error: 'Slug already exists' }, { status: 409 })
+    }
+    return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 })
   }
 }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  await requireAuth()
-  deleteProject(Number(params.id))
+  const parsedParams = paramsSchema.safeParse(params)
+  if (!parsedParams.success) {
+    return NextResponse.json({ success: false, error: 'Invalid project ID' }, { status: 400 })
+  }
+
+  try {
+    await requireAuth()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const existing = getProjectById(parsedParams.data.id)
+  if (!existing) {
+    return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 })
+  }
+
+  deleteProject(parsedParams.data.id)
   return NextResponse.json({ success: true })
 }

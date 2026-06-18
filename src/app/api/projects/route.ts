@@ -9,9 +9,19 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  await requireAuth()
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 })
+  }
 
-  const body = await request.json()
+  try {
+    await requireAuth()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
   const parsed = projectWithImageSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ success: false, error: parsed.error.errors[0].message }, { status: 400 })
