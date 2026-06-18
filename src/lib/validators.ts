@@ -15,7 +15,7 @@ export const projectSchema = z.object({
 })
 
 export const projectWithImageSchema = projectSchema.extend({
-  image_path: z.string().min(1, 'Image is required'),
+  image_path: z.string().min(1, 'Image is required').regex(/^\/uploads\//, 'Image path must start with /uploads/'),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>

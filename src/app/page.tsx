@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import ProjectCard from '@/components/projects/ProjectCard'
 import { getAllProjects } from '@/lib/projects'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'liy.dev - Projetos pessoais',
   description: 'Projetos pessoais em linguagens de programação, engines de jogos e ferramentas de desenvolvimento.',

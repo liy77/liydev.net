@@ -6,6 +6,8 @@ import { getAllProjects, getProjectBySlug } from '@/lib/projects'
 import GlassCard from '@/components/ui/GlassCard'
 import Button from '@/components/ui/Button'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateStaticParams() {
   const projects = getAllProjects()
   return projects.map((project) => ({ slug: project.slug }))

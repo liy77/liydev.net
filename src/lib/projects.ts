@@ -45,7 +45,7 @@ export function updateProject(id: number, project: Partial<ProjectInput>): Proje
     description: project.description ?? existing.description,
     image_path: project.image_path ?? existing.image_path,
     github_url: project.github_url ?? existing.github_url,
-    website_url: project.website_url ?? existing.website_url,
+    website_url: project.website_url === '' ? null : project.website_url ?? existing.website_url,
     display_order: project.display_order ?? existing.display_order,
   }
 
