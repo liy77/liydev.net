@@ -2,28 +2,54 @@ import Database from 'better-sqlite3'
 import fs from 'fs'
 import path from 'path'
 
-const dbPath = process.env.DATABASE_URL
-  ? path.resolve(process.env.DATABASE_URL)
-  : path.resolve(process.cwd(), 'data/portfolio.db')
+let db: InstanceType<typeof Database> | null = null
 
-fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+export function getDatabase(): InstanceType<typeof Database> {
+  if (db) {
+    return db
+  }
 
-export const db = new Database(dbPath)
-db.pragma('journal_mode = WAL')
+  const rawDbPath = process.env.DATABASE_URL ?? path.join('data', 'portfolio.db')
 
-export function initializeDatabase(): void {
-  const schemaPath = resolveSchemaPath()
-  const schema = fs.readFileSync(schemaPath, 'utf-8')
-  db.exec(schema)
+  // SQLite treats `:memory:` as a special name for an in-memory database.
+  // Do not resolve it to an absolute path or create parent directories.
+  const dbPath = rawDbPath === ':memory:' ? ':memory:' : path.resolve(rawDbPath)
+
+  if (dbPath !== ':memory:') {
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+  }
+
+  db = new Database(dbPath)
+  db.pragma('journal_mode = WAL')
+
+  return db
 }
 
+export function initializeDatabase(): void {
+  const database = getDatabase()
+  const schemaPath = resolveSchemaPath()
+  const schema = fs.readFileSync(schemaPath, 'utf-8')
+  database.exec(schema)
+}
+
+/**
+ * Closes the global singleton database connection and resets the singleton.
+ * This is acceptable in the current architecture because tests run with an
+ * in-memory database (`:memory:`) and Vitest isolates each test file in its
+ * own process by default.
+ */
 export function closeDatabase(): void {
-  db.close()
+  if (db) {
+    db.close()
+    db = null
+  }
 }
 
 function resolveSchemaPath(): string {
   const candidates = [
-    path.join(__dirname, 'schema.sql'),
+    typeof __dirname !== 'undefined'
+      ? path.join(__dirname, 'schema.sql')
+      : path.join(process.cwd(), 'src/lib/schema.sql'),
     path.join(process.cwd(), 'src/lib/schema.sql'),
   ]
 

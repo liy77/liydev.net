@@ -4,6 +4,7 @@
 .env.local
 .env.*.local
 *.log
+tsconfig.tsbuildinfo
 data/*
 !.gitkeep
 public/uploads/*

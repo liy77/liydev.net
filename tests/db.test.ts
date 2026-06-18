@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { db, initializeDatabase, closeDatabase } from '@/lib/db'
+import {
+  getDatabase,
+  initializeDatabase,
+  closeDatabase,
+} from '@/lib/db'
 
 describe('database', () => {
   beforeAll(() => {
@@ -11,6 +15,7 @@ describe('database', () => {
   })
 
   it('should connect and have required tables', () => {
+    const db = getDatabase()
     const tables = db
       .prepare("SELECT name FROM sqlite_master WHERE type='table'")
       .all() as { name: string }[]
@@ -20,6 +25,7 @@ describe('database', () => {
   })
 
   it('should have required users columns', () => {
+    const db = getDatabase()
     const columns = db
       .prepare('PRAGMA table_info(users)')
       .all() as { name: string }[]
@@ -31,6 +37,7 @@ describe('database', () => {
   })
 
   it('should have required projects columns', () => {
+    const db = getDatabase()
     const columns = db
       .prepare('PRAGMA table_info(projects)')
       .all() as { name: string }[]
