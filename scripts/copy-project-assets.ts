@@ -16,11 +16,7 @@ async function copy() {
       await fs.copyFile(asset.src, path.join(uploadDir, asset.dest))
       console.log(`Copied ${asset.dest}`)
     } catch (err) {
-      if (asset.fallback) {
-        console.warn(`Using placeholder for ${asset.dest}`)
-      } else {
-        console.warn(`Failed to copy ${asset.dest}:`, err)
-      }
+      console.warn(`Failed to copy ${asset.dest}:`, err)
     }
   }
 }
