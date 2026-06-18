@@ -4,7 +4,7 @@ import path from 'path'
 const ASSETS = [
   { src: '/Volumes/MCUDevDisk/copper-lang/assets/copperlang.png', dest: 'copper-lang.png' },
   { src: '/Volumes/MCUDevDisk/mocida/mocida/assets/banner.svg', dest: 'mocida.svg' },
-  { src: '/Volumes/MCUDevDisk/OndaEngine/assets/icon.png', dest: 'ondaengine.png', fallback: true },
+  { src: '/Volumes/MCUDevDisk/OndaEngine/assets/onda-logo.png', dest: 'ondaengine.png' },
 ]
 
 async function copy() {
