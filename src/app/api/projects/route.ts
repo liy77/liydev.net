@@ -35,6 +35,14 @@ export async function POST(request: Request) {
     })
     return NextResponse.json({ success: true, project }, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Slug already exists' }, { status: 409 })
+    const isUniqueConstraint =
+      error instanceof Error &&
+      ((error as { code?: string }).code === 'SQLITE_CONSTRAINT_UNIQUE' ||
+        error.message.includes('UNIQUE constraint failed'))
+    if (isUniqueConstraint) {
+      return NextResponse.json({ success: false, error: 'Slug already exists' }, { status: 409 })
+    }
+    console.error('Failed to create project:', error)
+    return NextResponse.json({ success: false, error: 'Failed to create project' }, { status: 500 })
   }
 }

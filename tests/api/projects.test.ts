@@ -17,6 +17,7 @@ import { createToken } from '@/lib/auth'
 import { initializeDatabase, getDatabase, closeDatabase } from '@/lib/db'
 import { GET as projectsGET, POST as projectsPOST } from '@/app/api/projects/route'
 import { GET as projectGET, PUT as projectPUT, DELETE as projectDELETE } from '@/app/api/projects/[id]/route'
+import { POST as reorderPOST } from '@/app/api/projects/reorder/route'
 
 describe('projects API routes', () => {
   let token: string
@@ -151,5 +152,104 @@ describe('projects API routes', () => {
     const data = await response.json()
     expect(data.success).toBe(false)
     expect(data.error).toBe('Invalid JSON')
+  })
+
+  it('GET /api/projects/[id] returns project', async () => {
+    const response = await projectGET(new Request(`http://localhost/api/projects/${projectId}`), {
+      params: { id: String(projectId) },
+    })
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.success).toBe(true)
+    expect(data.project.id).toBe(projectId)
+  })
+
+  it('GET /api/projects/[id] with invalid ID returns 400', async () => {
+    const response = await projectGET(new Request('http://localhost/api/projects/not-a-number'), {
+      params: { id: 'not-a-number' },
+    })
+    expect(response.status).toBe(400)
+    const data = await response.json()
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Invalid project ID')
+  })
+
+  it('GET /api/projects/[id] with non-existent ID returns 404', async () => {
+    const response = await projectGET(new Request('http://localhost/api/projects/999999'), {
+      params: { id: '999999' },
+    })
+    expect(response.status).toBe(404)
+    const data = await response.json()
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Project not found')
+  })
+
+  it('PUT /api/projects/[id] partial update preserves website_url', async () => {
+    mockCookieStore.get.mockReturnValue({ value: token })
+    const response = await projectPUT(
+      new Request(`http://localhost/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Partially Updated Project' }),
+      }),
+      { params: { id: String(projectId) } }
+    )
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.success).toBe(true)
+    expect(data.project.title).toBe('Partially Updated Project')
+    expect(data.project.website_url).toBe('https://example.com')
+  })
+
+  it('PUT /api/projects/[id] with slug conflict returns 409', async () => {
+    mockCookieStore.get.mockReturnValue({ value: token })
+    const response = await projectPUT(
+      new Request(`http://localhost/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: 'test-project' }),
+      }),
+      { params: { id: String(projectId) } }
+    )
+    expect(response.status).toBe(409)
+    const data = await response.json()
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Slug already exists')
+  })
+
+  it('POST /api/projects/reorder with auth succeeds', async () => {
+    mockCookieStore.get.mockReturnValue({ value: token })
+    const request = new Request('http://localhost/api/projects/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([{ id: projectId, display_order: 5 }]),
+    })
+    const response = await reorderPOST(request)
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.success).toBe(true)
+  })
+
+  it('DELETE /api/projects/[id] with auth succeeds', async () => {
+    mockCookieStore.get.mockReturnValue({ value: token })
+    const request = new Request(`http://localhost/api/projects/${projectId}`, {
+      method: 'DELETE',
+    })
+    const response = await projectDELETE(request, { params: { id: String(projectId) } })
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.success).toBe(true)
+  })
+
+  it('DELETE /api/projects/[id] for non-existent returns 404', async () => {
+    mockCookieStore.get.mockReturnValue({ value: token })
+    const request = new Request('http://localhost/api/projects/999999', {
+      method: 'DELETE',
+    })
+    const response = await projectDELETE(request, { params: { id: '999999' } })
+    expect(response.status).toBe(404)
+    const data = await response.json()
+    expect(data.success).toBe(false)
+    expect(data.error).toBe('Project not found')
   })
 })

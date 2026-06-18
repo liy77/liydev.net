@@ -5,7 +5,7 @@ import { requireAuth } from '@/lib/auth'
 import { projectWithImageSchema } from '@/lib/validators'
 
 const paramsSchema = z.object({
-  id: z.coerce.number().positive('Invalid project ID'),
+  id: z.coerce.number().int().positive('Invalid project ID'),
 })
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
