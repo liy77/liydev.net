@@ -4,7 +4,8 @@
 .env.local
 .env.*.local
 *.log
-data/
+data/*
+!.gitkeep
 public/uploads/*
 !.gitkeep
 .superpowers/
