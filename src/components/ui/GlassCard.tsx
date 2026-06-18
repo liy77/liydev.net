@@ -1,14 +1,18 @@
-import { ReactNode } from 'react'
+import { ReactNode, forwardRef } from 'react'
 
 interface GlassCardProps {
   children: ReactNode
   className?: string
 }
 
-export default function GlassCard({ children, className = '' }: GlassCardProps) {
-  return (
-    <div className={`glass-card p-6 ${className}`}>
-      {children}
-    </div>
-  )
-}
+const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
+  ({ children, className = '' }, ref) => {
+    return (
+      <div ref={ref} className={`glass-card p-6 ${className}`}>
+        {children}
+      </div>
+    )
+  }
+)
+GlassCard.displayName = 'GlassCard'
+export default GlassCard
