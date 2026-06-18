@@ -47,18 +47,18 @@ export default function LoginForm() {
         <h1 className="text-2xl font-bold text-gradient mb-6">Login do Admin</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label htmlFor="email" className="text-sm text-white/70">
+            <label htmlFor="email" className="text-sm text-theme-secondary">
               Email
             </label>
             <Input id="email" name="email" type="email" placeholder="Email" required />
           </div>
           <div className="space-y-1">
-            <label htmlFor="password" className="text-sm text-white/70">
+            <label htmlFor="password" className="text-sm text-theme-secondary">
               Senha
             </label>
             <Input id="password" name="password" type="password" placeholder="Senha" required />
           </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>

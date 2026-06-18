@@ -24,6 +24,9 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    const root = document.documentElement
+    const getVar = (name: string) => getComputedStyle(root).getPropertyValue(name).trim()
+
     let animationFrameId: number
     let width = window.innerWidth
     let height = window.innerHeight
@@ -67,20 +70,29 @@ export default function AnimatedBackground() {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseleave', handleMouseLeave)
 
-    const blobs = [
-      { x: width * 0.2, y: height * 0.3, r: 300, dx: 0.3, dy: 0.2, color: 'rgba(56, 189, 248, 0.12)' },
-      { x: width * 0.8, y: height * 0.6, r: 350, dx: -0.2, dy: 0.3, color: 'rgba(168, 85, 247, 0.1)' },
-      { x: width * 0.5, y: height * 0.8, r: 250, dx: 0.15, dy: -0.25, color: 'rgba(236, 72, 153, 0.08)' },
+    let blobs = [
+      { x: width * 0.2, y: height * 0.3, r: 300, dx: 0.3, dy: 0.2, color: getVar('--blob-blue') },
+      { x: width * 0.8, y: height * 0.6, r: 350, dx: -0.2, dy: 0.3, color: getVar('--blob-purple') },
+      { x: width * 0.5, y: height * 0.8, r: 250, dx: 0.15, dy: -0.25, color: getVar('--blob-pink') },
     ]
+
+    const updateThemeColors = () => {
+      blobs[0].color = getVar('--blob-blue')
+      blobs[1].color = getVar('--blob-purple')
+      blobs[2].color = getVar('--blob-pink')
+    }
+
+    const themeObserver = new MutationObserver(updateThemeColors)
+    themeObserver.observe(root, { attributes: true, attributeFilter: ['class'] })
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height)
 
       // Draw base gradient
       const baseGradient = ctx.createLinearGradient(0, 0, width, height)
-      baseGradient.addColorStop(0, '#0a0a0f')
-      baseGradient.addColorStop(0.5, '#1a1a2e')
-      baseGradient.addColorStop(1, '#0f0f1a')
+      baseGradient.addColorStop(0, getVar('--canvas-start'))
+      baseGradient.addColorStop(0.5, getVar('--canvas-mid'))
+      baseGradient.addColorStop(1, getVar('--canvas-end'))
       ctx.fillStyle = baseGradient
       ctx.fillRect(0, 0, width, height)
 
@@ -118,8 +130,8 @@ export default function AnimatedBackground() {
       const mouse = mouseRef.current
       const particles = particlesRef.current
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.fillStyle = getVar('--particle-color')
+      ctx.strokeStyle = getVar('--particle-line')
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]

@@ -30,7 +30,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
   return (
     <main className="min-h-screen px-6 py-12 max-w-4xl mx-auto">
-      <Link href="/" className="text-white/60 hover:text-white transition-colors mb-8 inline-block">
+      <Link href="/" className="text-theme-secondary hover:text-theme-primary transition-colors mb-8 inline-block">
         ← Voltar
       </Link>
 
@@ -47,7 +47,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         </div>
 
         <h1 className="text-4xl font-bold text-gradient mb-4">{project.title}</h1>
-        <p className="text-white/70 text-lg mb-8 leading-relaxed">{project.description}</p>
+        <p className="text-theme-secondary text-lg mb-8 leading-relaxed">{project.description}</p>
 
         <div className="flex flex-wrap gap-4">
           <Button asChild>

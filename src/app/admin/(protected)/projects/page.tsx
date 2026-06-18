@@ -61,7 +61,7 @@ export default function AdminProjectsPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Projetos</h2>
+        <h2 className="text-2xl font-semibold text-theme-primary">Projetos</h2>
         <Button asChild>
           <Link href="/admin/projects/new">Novo projeto</Link>
         </Button>
@@ -69,11 +69,11 @@ export default function AdminProjectsPage() {
 
       <GlassCard>
         {loading ? (
-          <p className="text-white/40">Carregando...</p>
+          <p className="text-theme-muted">Carregando...</p>
         ) : error ? (
-          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-red-500 text-sm">{error}</p>
         ) : projects.length === 0 ? (
-          <p className="text-white/40">Nenhum projeto cadastrado.</p>
+          <p className="text-theme-muted">Nenhum projeto cadastrado.</p>
         ) : (
           <SortableProjectList
             projects={projects}

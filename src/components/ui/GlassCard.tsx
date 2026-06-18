@@ -1,16 +1,17 @@
-import { ReactNode, forwardRef, HTMLAttributes } from 'react'
+import { ReactNode, forwardRef, ElementType, ComponentPropsWithoutRef } from 'react'
 
-interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
+type GlassCardProps<T extends ElementType = 'div'> = {
+  as?: T
   children: ReactNode
   className?: string
-}
+} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children' | 'className'>
 
-const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ children, className = '', ...props }, ref) => {
+const GlassCard = forwardRef<HTMLElement, GlassCardProps<ElementType>>(
+  ({ as: Component = 'div', children, className = '', ...props }, ref) => {
     return (
-      <div ref={ref} className={`glass-card p-6 ${className}`} {...props}>
+      <Component ref={ref} className={`glass-card p-6 ${className}`} {...props}>
         {children}
-      </div>
+      </Component>
     )
   }
 )

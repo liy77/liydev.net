@@ -50,6 +50,11 @@ export default function ProjectForm({ project }: ProjectFormProps) {
     }
   }, [isEditing])
 
+  const handleUpload = (path: string) => {
+    setImagePath(path)
+    setError('')
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
@@ -104,7 +109,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label htmlFor="title" className="text-sm text-white/70">
+            <label htmlFor="title" className="text-sm text-theme-secondary">
               Título
             </label>
             <Input
@@ -117,7 +122,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="slug" className="text-sm text-white/70">
+            <label htmlFor="slug" className="text-sm text-theme-secondary">
               Slug
             </label>
             <Input
@@ -132,7 +137,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="short_description" className="text-sm text-white/70">
+          <label htmlFor="short_description" className="text-sm text-theme-secondary">
             Descrição curta
           </label>
           <Textarea
@@ -145,7 +150,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="description" className="text-sm text-white/70">
+          <label htmlFor="description" className="text-sm text-theme-secondary">
             Descrição completa
           </label>
           <Textarea
@@ -159,7 +164,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
-            <label htmlFor="github_url" className="text-sm text-white/70">
+            <label htmlFor="github_url" className="text-sm text-theme-secondary">
               URL do GitHub
             </label>
             <Input
@@ -171,7 +176,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="website_url" className="text-sm text-white/70">
+            <label htmlFor="website_url" className="text-sm text-theme-secondary">
               URL do site (opcional)
             </label>
             <Input
@@ -185,11 +190,11 @@ export default function ProjectForm({ project }: ProjectFormProps) {
 
         <ImageUpload
           defaultImage={project?.image_path}
-          onUpload={setImagePath}
+          onUpload={handleUpload}
           onError={setError}
         />
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <div className="flex gap-4">
           <Button type="submit" disabled={loading}>

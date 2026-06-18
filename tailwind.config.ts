@@ -14,6 +14,13 @@ const config: Config = {
           200: 'rgba(255,255,255,0.1)',
           300: 'rgba(255,255,255,0.15)',
         },
+        theme: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
+          surface: 'var(--surface)',
+          border: 'var(--glass-border)',
+        },
       },
       backdropBlur: {
         xs: '2px',

@@ -21,13 +21,13 @@ export default function HomePage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/20 blur-[120px]" />
         </div>
 
-        <p className="text-blue-400 font-medium mb-4 tracking-wide uppercase text-sm animate-fade-in">
+        <p className="text-blue-500 font-medium mb-4 tracking-wide uppercase text-sm animate-fade-in">
           Portfolio de desenvolvimento
         </p>
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
           <span className="text-gradient">liy.dev</span>
         </h1>
-        <p className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <p className="text-xl md:text-2xl text-theme-secondary max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
           Linguagens de programação, engines de jogos e ferramentas nativas.
           <br />
           Código que vira realidade.
@@ -45,16 +45,16 @@ export default function HomePage() {
       <section id="projetos" className="scroll-mt-20">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Projetos</h2>
-            <p className="text-white/50">Coisas que eu construí do zero.</p>
+            <h2 className="text-3xl font-bold text-theme-primary mb-2">Projetos</h2>
+            <p className="text-theme-muted">Coisas que eu construí do zero.</p>
           </div>
-          <Link href="/about" className="text-sm text-white/50 hover:text-white transition-colors hidden sm:block">
+          <Link href="/about" className="text-sm text-theme-muted hover:text-theme-primary transition-colors hidden sm:block">
             Sobre →
           </Link>
         </div>
 
         {projects.length === 0 ? (
-          <p className="text-white/40">Nenhum projeto cadastrado ainda.</p>
+          <p className="text-theme-muted">Nenhum projeto cadastrado ainda.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project, index) => (

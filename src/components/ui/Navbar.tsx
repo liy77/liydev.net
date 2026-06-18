@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   return (
@@ -12,22 +13,23 @@ export default function Navbar() {
           <div className="flex items-center gap-6 pointer-events-auto relative z-10">
             <Link
               href="/"
-              className="text-sm text-white/70 hover:text-white transition-colors pointer-events-auto"
+              className="text-sm text-theme-secondary hover:text-theme-primary transition-colors pointer-events-auto"
             >
               Projetos
             </Link>
             <Link
               href="/about"
-              className="text-sm text-white/70 hover:text-white transition-colors pointer-events-auto"
+              className="text-sm text-theme-secondary hover:text-theme-primary transition-colors pointer-events-auto"
             >
               Sobre
             </Link>
             <Link
               href="/admin"
-              className="text-sm px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-all pointer-events-auto"
+              className="text-sm px-3 py-1.5 rounded-lg bg-theme-surface border border-theme-border text-theme-secondary hover:bg-theme-surface hover:text-theme-primary transition-all pointer-events-auto"
             >
               Admin
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </div>

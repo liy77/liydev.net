@@ -53,7 +53,7 @@ export default function ImageUpload({ defaultImage, onUpload, onError }: ImageUp
 
   return (
     <div className="space-y-3">
-      <label htmlFor="image-upload" className="text-sm text-white/70">
+      <label htmlFor="image-upload" className="text-sm text-theme-secondary">
         Imagem do projeto
       </label>
       <input
@@ -65,7 +65,7 @@ export default function ImageUpload({ defaultImage, onUpload, onError }: ImageUp
         className="hidden"
       />
       {preview && (
-        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-white/5">
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-theme-surface">
           <img src={preview} alt="Preview" className="w-full h-full object-cover" />
         </div>
       )}

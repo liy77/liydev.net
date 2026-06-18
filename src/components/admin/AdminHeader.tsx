@@ -26,12 +26,12 @@ export default function AdminHeader({ email }: AdminHeaderProps) {
   }
 
   return (
-    <header className="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+    <header className="flex justify-between items-center mb-8 pb-4 border-b border-theme-border">
       <div className="flex items-center gap-6">
         <Link href="/admin/projects" className="text-xl font-bold text-gradient">
           Admin
         </Link>
-        <span className="text-white/40 text-sm">{email}</span>
+        <span className="text-theme-muted text-sm">{email}</span>
       </div>
       <Button variant="secondary" onClick={handleLogout}>
         Sair

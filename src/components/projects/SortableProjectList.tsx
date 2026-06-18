@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
+import GlassCard from '@/components/ui/GlassCard'
 import type { Project } from '@/types'
 
 interface SortableProjectListProps {
@@ -29,15 +30,12 @@ export default function SortableProjectList({
   return (
     <ul className="space-y-3">
       {projects.map((project, index) => (
-        <li
-          key={project.id}
-          className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10"
-        >
+        <GlassCard as="li" key={project.id} className="flex justify-between items-center p-4">
           <div className="flex items-center gap-4">
-            <span className="text-white/30 text-sm w-8">#{project.display_order}</span>
+            <span className="text-theme-secondary text-sm w-8">#{project.display_order}</span>
             <div>
-              <h3 className="font-medium">{project.title}</h3>
-              <p className="text-white/40 text-sm">/{project.slug}</p>
+              <h3 className="font-medium text-theme-primary">{project.title}</h3>
+              <p className="text-theme-secondary text-sm">/{project.slug}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -74,7 +72,7 @@ export default function SortableProjectList({
               Excluir
             </Button>
           </div>
-        </li>
+        </GlassCard>
       ))}
     </ul>
   )

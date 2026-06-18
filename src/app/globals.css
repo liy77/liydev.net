@@ -3,13 +3,63 @@
 @tailwind utilities;
 
 :root {
-  --background-start: #0a0a0f;
-  --background-end: #1a1a2e;
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.12);
   --accent-blue: #38bdf8;
   --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
+}
+
+html.dark {
+  --background-start: #0a0a0f;
+  --background-end: #1a1a2e;
+  --background-mid: #0f0f1a;
+  --text-primary: #f5f5f7;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-gradient: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-border-highlight: rgba(255, 255, 255, 0.35);
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  --glass-inner-glow: rgba(255, 255, 255, 0.1);
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --focus-ring: rgba(255, 255, 255, 0.2);
+  --focus-border: rgba(255, 255, 255, 0.3);
+  --canvas-start: #0a0a0f;
+  --canvas-mid: #1a1a2e;
+  --canvas-end: #0f0f1a;
+  --particle-color: rgba(255, 255, 255, 0.4);
+  --particle-line: rgba(255, 255, 255, 0.05);
+  --blob-blue: rgba(56, 189, 248, 0.12);
+  --blob-purple: rgba(168, 85, 247, 0.1);
+  --blob-pink: rgba(236, 72, 153, 0.08);
+}
+
+html.light {
+  --background-start: #f5f5f7;
+  --background-end: #e8e8ed;
+  --background-mid: #f0f0f5;
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(0, 0, 0, 0.7);
+  --text-muted: rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-gradient: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-highlight: rgba(255, 255, 255, 0.9);
+  --glass-shadow: rgba(0, 0, 0, 0.08);
+  --glass-inner-glow: rgba(255, 255, 255, 0.6);
+  --surface: rgba(0, 0, 0, 0.04);
+  --surface-hover: rgba(0, 0, 0, 0.08);
+  --focus-ring: rgba(0, 0, 0, 0.1);
+  --focus-border: rgba(0, 0, 0, 0.25);
+  --canvas-start: #f5f5f7;
+  --canvas-mid: #f0f0f5;
+  --canvas-end: #e8e8ed;
+  --particle-color: rgba(0, 0, 0, 0.25);
+  --particle-line: rgba(0, 0, 0, 0.08);
+  --blob-blue: rgba(56, 189, 248, 0.08);
+  --blob-purple: rgba(168, 85, 247, 0.06);
+  --blob-pink: rgba(236, 72, 153, 0.05);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -18,34 +68,92 @@
   }
 }
 
+html {
+  background: linear-gradient(135deg, var(--background-start) 0%, var(--background-mid) 50%, var(--background-end) 100%);
+  transition: background 0.5s ease;
+}
+
 body {
-  background: linear-gradient(135deg, var(--background-start) 0%, var(--background-end) 100%);
-  color: #f5f5f7;
+  color: var(--text-primary);
   min-height: 100vh;
+  transition: color 0.5s ease;
 }
 
 @layer components {
   .glass-card {
-    background: linear-gradient(135deg, var(--glass-bg) 0%, rgba(255, 255, 255, 0.03) 100%);
+    position: relative;
+    background:
+      linear-gradient(135deg, var(--glass-bg) 0%, var(--glass-bg-gradient) 50%, rgba(255, 255, 255, 0.02) 100%);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid var(--glass-border);
-    border-top: 1px solid var(--glass-highlight);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 var(--glass-highlight);
+    border-top: 1px solid var(--glass-border-highlight);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 8px 32px var(--glass-shadow),
+      inset 0 1px 0 var(--glass-inner-glow),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    pointer-events: none;
+    border-radius: inherit;
   }
 
   .glass-button {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 20%, transparent), color-mix(in srgb, var(--accent-purple) 20%, transparent));
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 20%, transparent), color-mix(in srgb, var(--accent-purple) 20%, transparent));
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 0.75rem;
-    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  .glass-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+    pointer-events: none;
   }
 
   .glass-button:hover {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 30%, transparent), color-mix(in srgb, var(--accent-purple) 30%, transparent));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent-blue) 30%, transparent), color-mix(in srgb, var(--accent-purple) 30%, transparent));
     transform: translateY(-1px);
+    box-shadow:
+      0 6px 24px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  html.light .glass-button {
+    background:
+      linear-gradient(135deg, rgba(56, 189, 248, 0.45), rgba(168, 85, 247, 0.45));
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+  }
+
+  html.light .glass-button:hover {
+    background:
+      linear-gradient(135deg, rgba(56, 189, 248, 0.55), rgba(168, 85, 247, 0.55));
   }
 
   .text-gradient {
@@ -53,5 +161,25 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .text-theme-primary {
+    color: var(--text-primary);
+  }
+
+  .text-theme-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-theme-muted {
+    color: var(--text-muted);
+  }
+
+  .bg-theme-surface {
+    background-color: var(--surface);
+  }
+
+  .hover\:bg-theme-surface:hover {
+    background-color: var(--surface-hover);
   }
 }
