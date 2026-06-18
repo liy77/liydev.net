@@ -1,5 +1,11 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import GlassCard from '@/components/ui/GlassCard'
+
+export const metadata: Metadata = {
+  title: 'Sobre | liy.dev',
+  description: 'Conheça mais sobre o desenvolvedor por trás dos projetos pessoais em linguagens, engines e ferramentas.',
+}
 
 export default function AboutPage() {
   return (

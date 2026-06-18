@@ -1,5 +1,12 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
 import ProjectCard from '@/components/projects/ProjectCard'
 import { getAllProjects } from '@/lib/projects'
+
+export const metadata: Metadata = {
+  title: 'liy.dev - Projetos pessoais',
+  description: 'Projetos pessoais em linguagens de programação, engines de jogos e ferramentas de desenvolvimento.',
+}
 
 export default function HomePage() {
   const projects = getAllProjects()
@@ -11,9 +18,9 @@ export default function HomePage() {
           <h1 className="text-3xl font-bold text-gradient mb-2">liy.dev</h1>
           <p className="text-white/60">Projetos pessoais em linguagens, engines e ferramentas.</p>
         </div>
-        <a href="/about" className="text-sm text-white/60 hover:text-white transition-colors">
+        <Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors">
           Sobre
-        </a>
+        </Link>
       </header>
 
       <section>
