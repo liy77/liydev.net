@@ -54,4 +54,13 @@ describe('database', () => {
     expect(names).toContain('created_at')
     expect(names).toContain('updated_at')
   })
+
+  it('should have the update_project_updated_at trigger', () => {
+    const db = getDatabase()
+    const triggers = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='trigger'")
+      .all() as { name: string }[]
+    const names = triggers.map((t) => t.name)
+    expect(names).toContain('update_project_updated_at')
+  })
 })
