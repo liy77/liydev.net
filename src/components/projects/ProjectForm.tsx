@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -8,6 +8,15 @@ import Textarea from '@/components/ui/Textarea'
 import GlassCard from '@/components/ui/GlassCard'
 import ImageUpload from './ImageUpload'
 import type { Project } from '@/types'
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
 
 interface ProjectFormProps {
   project?: Project
@@ -20,6 +29,26 @@ export default function ProjectForm({ project }: ProjectFormProps) {
   const [imagePath, setImagePath] = useState(project?.image_path || '')
 
   const isEditing = !!project
+  const slugManuallyEdited = useRef(isEditing)
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value
+    const slugInput = document.getElementById('slug') as HTMLInputElement | null
+    if (slugInput && !slugManuallyEdited.current) {
+      slugInput.value = slugify(title)
+    }
+  }
+
+  const handleSlugBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    slugManuallyEdited.current = true
+    e.target.value = slugify(e.target.value)
+  }
+
+  useEffect(() => {
+    if (!isEditing) {
+      slugManuallyEdited.current = false
+    }
+  }, [isEditing])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -45,20 +74,24 @@ export default function ProjectForm({ project }: ProjectFormProps) {
     const url = isEditing ? `/api/projects/${project.id}` : '/api/projects'
     const method = isEditing ? 'PUT' : 'POST'
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
-    setLoading(false)
-
-    if (res.ok) {
-      router.push('/admin/projects')
-      router.refresh()
-    } else {
-      const data = await res.json()
-      setError(data.error || 'Failed to save project')
+      if (res.ok) {
+        router.push('/admin/projects')
+        router.refresh()
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Falha ao salvar projeto')
+      }
+    } catch {
+      setError('Erro de rede. Tente novamente.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -70,30 +103,91 @@ export default function ProjectForm({ project }: ProjectFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input name="title" defaultValue={project?.title} placeholder="Título" required />
-          <Input name="slug" defaultValue={project?.slug} placeholder="Slug (ex: copper-lang)" required />
+          <div className="space-y-1">
+            <label htmlFor="title" className="text-sm text-white/70">
+              Título
+            </label>
+            <Input
+              id="title"
+              name="title"
+              defaultValue={project?.title}
+              placeholder="Título"
+              onChange={handleTitleChange}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="slug" className="text-sm text-white/70">
+              Slug
+            </label>
+            <Input
+              id="slug"
+              name="slug"
+              defaultValue={project?.slug}
+              placeholder="Slug (ex: copper-lang)"
+              onBlur={handleSlugBlur}
+              required
+            />
+          </div>
         </div>
 
-        <Textarea
-          name="short_description"
-          defaultValue={project?.short_description}
-          placeholder="Descrição curta (aparece no card)"
-          required
-        />
+        <div className="space-y-1">
+          <label htmlFor="short_description" className="text-sm text-white/70">
+            Descrição curta
+          </label>
+          <Textarea
+            id="short_description"
+            name="short_description"
+            defaultValue={project?.short_description}
+            placeholder="Descrição curta (aparece no card)"
+            required
+          />
+        </div>
 
-        <Textarea
-          name="description"
-          defaultValue={project?.description}
-          placeholder="Descrição completa (markdown)"
-          required
-        />
+        <div className="space-y-1">
+          <label htmlFor="description" className="text-sm text-white/70">
+            Descrição completa
+          </label>
+          <Textarea
+            id="description"
+            name="description"
+            defaultValue={project?.description}
+            placeholder="Descrição completa (markdown)"
+            required
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input name="github_url" defaultValue={project?.github_url} placeholder="URL do GitHub" required />
-          <Input name="website_url" defaultValue={project?.website_url || ''} placeholder="URL do site (opcional)" />
+          <div className="space-y-1">
+            <label htmlFor="github_url" className="text-sm text-white/70">
+              URL do GitHub
+            </label>
+            <Input
+              id="github_url"
+              name="github_url"
+              defaultValue={project?.github_url}
+              placeholder="URL do GitHub"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="website_url" className="text-sm text-white/70">
+              URL do site (opcional)
+            </label>
+            <Input
+              id="website_url"
+              name="website_url"
+              defaultValue={project?.website_url || ''}
+              placeholder="URL do site (opcional)"
+            />
+          </div>
         </div>
 
-        <ImageUpload defaultImage={project?.image_path} onUpload={setImagePath} />
+        <ImageUpload
+          defaultImage={project?.image_path}
+          onUpload={setImagePath}
+          onError={setError}
+        />
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 

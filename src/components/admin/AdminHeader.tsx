@@ -12,9 +12,17 @@ export default function AdminHeader({ email }: AdminHeaderProps) {
   const router = useRouter()
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/admin/login')
-    router.refresh()
+    try {
+      const res = await fetch('/api/auth/logout', { method: 'POST' })
+      if (res.ok) {
+        router.push('/admin/login')
+        router.refresh()
+      } else {
+        alert('Falha ao sair. Tente novamente.')
+      }
+    } catch {
+      alert('Erro de rede ao sair.')
+    }
   }
 
   return (
