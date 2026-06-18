@@ -1,9 +1,21 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+interface Particle {
+  x: number
+  y: number
+  baseX: number
+  baseY: number
+  size: number
+  vx: number
+  vy: number
+}
 
 export default function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mouseRef = useRef({ x: 0, y: 0, active: false })
+  const particlesRef = useRef<Particle[]>([])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -21,20 +33,70 @@ export default function AnimatedBackground() {
       height = window.innerHeight
       canvas.width = width
       canvas.height = height
+      initParticles()
+    }
+
+    const initParticles = () => {
+      const count = Math.min(Math.floor((width * height) / 25000), 80)
+      particlesRef.current = []
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * width
+        const y = Math.random() * height
+        particlesRef.current.push({
+          x,
+          y,
+          baseX: x,
+          baseY: y,
+          size: Math.random() * 2 + 1,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+        })
+      }
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY, active: true }
+    }
+
+    const handleMouseLeave = () => {
+      mouseRef.current.active = false
     }
 
     resize()
     window.addEventListener('resize', resize)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseleave', handleMouseLeave)
 
     const blobs = [
-      { x: width * 0.2, y: height * 0.3, r: 300, dx: 0.3, dy: 0.2, color: 'rgba(56, 189, 248, 0.15)' },
-      { x: width * 0.8, y: height * 0.6, r: 350, dx: -0.2, dy: 0.3, color: 'rgba(168, 85, 247, 0.12)' },
-      { x: width * 0.5, y: height * 0.8, r: 250, dx: 0.15, dy: -0.25, color: 'rgba(236, 72, 153, 0.1)' },
+      { x: width * 0.2, y: height * 0.3, r: 300, dx: 0.3, dy: 0.2, color: 'rgba(56, 189, 248, 0.12)' },
+      { x: width * 0.8, y: height * 0.6, r: 350, dx: -0.2, dy: 0.3, color: 'rgba(168, 85, 247, 0.1)' },
+      { x: width * 0.5, y: height * 0.8, r: 250, dx: 0.15, dy: -0.25, color: 'rgba(236, 72, 153, 0.08)' },
     ]
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height)
 
+      // Draw base gradient
+      const baseGradient = ctx.createLinearGradient(0, 0, width, height)
+      baseGradient.addColorStop(0, '#0a0a0f')
+      baseGradient.addColorStop(0.5, '#1a1a2e')
+      baseGradient.addColorStop(1, '#0f0f1a')
+      ctx.fillStyle = baseGradient
+      ctx.fillRect(0, 0, width, height)
+
+      // Mouse spotlight
+      if (mouseRef.current.active) {
+        const mx = mouseRef.current.x
+        const my = mouseRef.current.y
+        const spotlight = ctx.createRadialGradient(mx, my, 0, mx, my, 450)
+        spotlight.addColorStop(0, 'rgba(56, 189, 248, 0.08)')
+        spotlight.addColorStop(0.4, 'rgba(168, 85, 247, 0.04)')
+        spotlight.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        ctx.fillStyle = spotlight
+        ctx.fillRect(0, 0, width, height)
+      }
+
+      // Animated blobs
       for (const blob of blobs) {
         blob.x += blob.dx
         blob.y += blob.dy
@@ -52,6 +114,66 @@ export default function AnimatedBackground() {
         ctx.fill()
       }
 
+      // Particles reacting to mouse
+      const mouse = mouseRef.current
+      const particles = particlesRef.current
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+
+        // Mouse interaction
+        if (mouse.active) {
+          const dx = mouse.x - p.x
+          const dy = mouse.y - p.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const maxDist = 180
+
+          if (dist < maxDist) {
+            const force = (maxDist - dist) / maxDist
+            const angle = Math.atan2(dy, dx)
+            p.vx -= Math.cos(angle) * force * 0.8
+            p.vy -= Math.sin(angle) * force * 0.8
+          }
+        }
+
+        // Return to base position
+        const homeX = p.baseX - p.x
+        const homeY = p.baseY - p.y
+        p.vx += homeX * 0.01
+        p.vy += homeY * 0.01
+
+        // Friction
+        p.vx *= 0.94
+        p.vy *= 0.94
+
+        p.x += p.vx
+        p.y += p.vy
+
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Connect nearby particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j]
+          const dx = p.x - p2.x
+          const dy = p.y - p2.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+
+          if (dist < 100) {
+            ctx.beginPath()
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.globalAlpha = (1 - dist / 100) * 0.3
+            ctx.stroke()
+            ctx.globalAlpha = 1
+          }
+        }
+      }
+
       animationFrameId = requestAnimationFrame(animate)
     }
 
@@ -59,6 +181,8 @@ export default function AnimatedBackground() {
 
     return () => {
       window.removeEventListener('resize', resize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseleave', handleMouseLeave)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
@@ -67,7 +191,6 @@ export default function AnimatedBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 -z-10 pointer-events-none"
-      style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%)' }}
     />
   )
 }
