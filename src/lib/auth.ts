@@ -1,12 +1,14 @@
 import bcrypt from 'bcryptjs'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
-import { getDatabase, initializeDatabase } from './db'
+import { getDatabase } from './db'
 import type { User, UserWithPassword } from '@/types'
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'default-secret-change-me'
-)
+const rawJwtSecret = process.env.JWT_SECRET
+if (!rawJwtSecret || rawJwtSecret.length < 32) {
+  throw new Error('JWT_SECRET must be set and at least 32 characters long')
+}
+const JWT_SECRET = new TextEncoder().encode(rawJwtSecret)
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12)
@@ -45,7 +47,7 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-export async function setAuthCookie(token: string) {
+export function setAuthCookie(token: string) {
   cookies().set('auth-token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -55,7 +57,7 @@ export async function setAuthCookie(token: string) {
   })
 }
 
-export async function clearAuthCookie() {
+export function clearAuthCookie() {
   cookies().set('auth-token', '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
