@@ -1,0 +1,54 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import GlassCard from '@/components/ui/GlassCard'
+
+export default function LoginForm() {
+  const router = useRouter()
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: formData.get('email'),
+        password: formData.get('password'),
+      }),
+    })
+
+    setLoading(false)
+
+    if (res.ok) {
+      router.push('/admin/projects')
+      router.refresh()
+    } else {
+      const data = await res.json()
+      setError(data.error || 'Login failed')
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-6">
+      <GlassCard className="w-full max-w-md animate-slide-up">
+        <h1 className="text-2xl font-bold text-gradient mb-6">Admin Login</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input name="email" type="email" placeholder="Email" required />
+          <Input name="password" type="password" placeholder="Senha" required />
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Button>
+        </form>
+      </GlassCard>
+    </div>
+  )
+}
