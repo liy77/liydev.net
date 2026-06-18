@@ -64,7 +64,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (isUniqueConstraint) {
       return NextResponse.json({ success: false, error: 'Slug already exists' }, { status: 409 })
     }
-    return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 })
+    console.error('Failed to update project:', error)
+    return NextResponse.json({ success: false, error: 'Failed to update project' }, { status: 500 })
   }
 }
 

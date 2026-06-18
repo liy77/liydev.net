@@ -5,8 +5,8 @@ import { updateProjectOrder } from '@/lib/projects'
 
 const reorderSchema = z.array(
   z.object({
-    id: z.number(),
-    display_order: z.number(),
+    id: z.number().int().nonnegative(),
+    display_order: z.number().int().nonnegative(),
   })
 )
 
