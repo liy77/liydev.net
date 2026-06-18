@@ -1,8 +1,11 @@
 export interface User {
   id: number
   email: string
-  password_hash: string
   created_at: string
+}
+
+export interface UserWithPassword extends User {
+  password_hash: string
 }
 
 export interface Project {
