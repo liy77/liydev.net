@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
-import { saveImage } from '@/lib/upload'
+import { saveImage, UploadValidationError } from '@/lib/upload'
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +20,11 @@ export async function POST(request: Request) {
     const result = await saveImage(file)
     return NextResponse.json({ success: true, path: result.path })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Upload failed'
-    return NextResponse.json({ success: false, error: message }, { status: 400 })
+    if (error instanceof UploadValidationError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 400 })
+    }
+
+    console.error('Upload error:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

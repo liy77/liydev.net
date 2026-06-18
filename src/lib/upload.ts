@@ -5,7 +5,17 @@ import sharp from 'sharp'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public/uploads')
 const MAX_SIZE = 2 * 1024 * 1024 // 2MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_WIDTH = 1920
+const MAX_HEIGHT = 1080
+const MAX_PIXELS = 50_000_000
+const ALLOWED_FORMATS = ['jpeg', 'png', 'webp'] as const
+
+export class UploadValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'UploadValidationError'
+  }
+}
 
 export interface UploadResult {
   path: string
@@ -13,31 +23,39 @@ export interface UploadResult {
 }
 
 export async function saveImage(file: File): Promise<UploadResult> {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    throw new Error('Invalid file type. Only JPG, PNG and WebP allowed.')
-  }
-
-  if (file.size > MAX_SIZE) {
-    throw new Error('File too large. Max 2MB.')
-  }
-
-  await fs.mkdir(UPLOAD_DIR, { recursive: true })
-
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
 
-  const metadata = await sharp(buffer).metadata()
-  if (metadata.width && metadata.width > 1920) {
-    throw new Error('Image too wide. Max 1920px.')
+  if (Buffer.byteLength(buffer) > MAX_SIZE) {
+    throw new UploadValidationError('File too large. Max 2MB.')
   }
-  if (metadata.height && metadata.height > 1080) {
-    throw new Error('Image too tall. Max 1080px.')
+
+  const image = sharp(buffer, { limitInputPixels: MAX_PIXELS })
+
+  let metadata: sharp.Metadata
+  try {
+    metadata = await image.metadata()
+  } catch {
+    throw new UploadValidationError('Invalid image file.')
+  }
+
+  const format = metadata.format
+  if (!format || !ALLOWED_FORMATS.includes(format as (typeof ALLOWED_FORMATS)[number])) {
+    throw new UploadValidationError('Invalid file type. Only JPG, PNG and WebP allowed.')
+  }
+
+  if (metadata.width && metadata.width > MAX_WIDTH) {
+    throw new UploadValidationError('Image too wide. Max 1920px.')
+  }
+  if (metadata.height && metadata.height > MAX_HEIGHT) {
+    throw new UploadValidationError('Image too tall. Max 1080px.')
   }
 
   const filename = `${randomUUID()}.webp`
   const outputPath = path.join(UPLOAD_DIR, filename)
 
-  await sharp(buffer).webp({ quality: 85 }).toFile(outputPath)
+  await fs.mkdir(UPLOAD_DIR, { recursive: true })
+  await image.webp({ quality: 85 }).toFile(outputPath)
 
   return {
     path: `/uploads/${filename}`,
