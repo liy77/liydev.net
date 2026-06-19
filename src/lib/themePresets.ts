@@ -65,7 +65,9 @@ export function seedDefaultPresets(): void {
     text_gradient_end: '#4ade80',
     use_text_gradient: true,
     glass_intensity: 75,
-    background_image: null,
+    background_image: '/uploads/presets/ocarina-of-time-bg.jpg',
+    background_music: null,
+    music_volume: 50,
   }
 
   db.prepare('INSERT INTO theme_presets (name, settings) VALUES (?, ?)').run(

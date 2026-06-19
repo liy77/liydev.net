@@ -45,6 +45,8 @@ export const settingsUpdateSchema = z.object({
   use_text_gradient: z.boolean().optional(),
   glass_intensity: z.number().int().min(0).max(100).optional(),
   background_image: z.string().nullable().optional(),
+  background_music: z.string().nullable().optional(),
+  music_volume: z.number().int().min(0).max(100).optional(),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>

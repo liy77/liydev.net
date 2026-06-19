@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS site_settings (
   use_text_gradient INTEGER NOT NULL DEFAULT 1,
   glass_intensity INTEGER NOT NULL DEFAULT 70,
   background_image TEXT,
+  background_music TEXT,
+  music_volume INTEGER NOT NULL DEFAULT 50,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `
@@ -140,6 +142,8 @@ function runMigrations(database: InstanceType<typeof Database>): void {
   addColumn("text_gradient_end", "TEXT NOT NULL DEFAULT '#a855f7'")
   addColumn("use_text_gradient", "INTEGER NOT NULL DEFAULT 1")
   addColumn("glass_intensity", "INTEGER NOT NULL DEFAULT 70")
+  addColumn("background_music", "TEXT")
+  addColumn("music_volume", "INTEGER NOT NULL DEFAULT 50")
 }
 
 /**

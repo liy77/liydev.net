@@ -99,7 +99,9 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     initialSettings.theme_mode === 'light' ? 'light' : 'dark'
   )
   const [previewImage, setPreviewImage] = useState<string | null>(initialSettings.background_image)
+  const [previewMusic, setPreviewMusic] = useState<string | null>(initialSettings.background_music)
   const [uploading, setUploading] = useState(false)
+  const [uploadingMusic, setUploadingMusic] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -135,7 +137,8 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 
     setUploading(true)
     const formData = new FormData()
-    formData.append('image', file)
+    formData.append('type', 'image')
+    formData.append('file', file)
 
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
@@ -159,12 +162,43 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     applyPreview({ ...settings, background_image: null })
   }
 
+  const handleMusicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingMusic(true)
+    const formData = new FormData()
+    formData.append('type', 'audio')
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (data.success) {
+        setPreviewMusic(data.path)
+        applyPreview({ ...settings, background_music: data.path })
+        setMessage('')
+      } else {
+        setMessage(data.error || 'Falha ao enviar música')
+      }
+    } catch {
+      setMessage('Erro de rede ao enviar música')
+    } finally {
+      setUploadingMusic(false)
+    }
+  }
+
+  const handleRemoveMusic = () => {
+    setPreviewMusic(null)
+    applyPreview({ ...settings, background_music: null })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
 
-    const payload = { ...settings, background_image: previewImage }
+    const payload = { ...settings, background_image: previewImage, background_music: previewMusic }
     try {
       const res = await fetch('/api/settings', {
         method: 'PUT',
@@ -219,12 +253,15 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
           use_text_gradient: true,
           glass_intensity: 70,
           background_image: null,
+          background_music: null,
+          music_volume: 50,
         }),
       })
       if (res.ok) {
         const fresh = await fetch('/api/settings').then((r) => r.json())
         applyPreview(fresh)
         setPreviewImage(null)
+        setPreviewMusic(null)
         setPreviewMode('dark')
         setMessage('Tema padrão restaurado')
       } else {
@@ -383,6 +420,46 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         )}
       </Section>
 
+      <Section title="Música de fundo">
+        <div className="space-y-4">
+          <label className="glass-button inline-flex items-center justify-center gap-2 px-4 py-2 cursor-pointer text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <span>Escolher música de fundo</span>
+            <input
+              type="file"
+              accept="audio/*"
+              onChange={handleMusicChange}
+              disabled={uploadingMusic}
+              className="hidden"
+            />
+          </label>
+          {uploadingMusic && <p className="text-theme-muted text-sm">Enviando...</p>}
+          {previewMusic && (
+            <div className="space-y-3">
+              <audio src={previewMusic} controls className="w-full max-w-md" />
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-theme-secondary">Volume padrão</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={settings.music_volume}
+                  onChange={(e) => applyPreview({ ...settings, music_volume: Number(e.target.value) })}
+                  className="w-32 accent-[var(--accent-blue)]"
+                />
+                <span className="text-sm text-theme-primary">{settings.music_volume}%</span>
+              </div>
+              <Button type="button" variant="danger" onClick={handleRemoveMusic}>
+                Remover música
+              </Button>
+            </div>
+          )}
+          {!previewMusic && !uploadingMusic && (
+            <p className="text-sm text-theme-muted">MP3, WAV, OGG, WebM ou AAC. Máx. 10MB.</p>
+          )}
+        </div>
+      </Section>
+
       <Section title="Preview ao vivo">
         <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="text-sm text-theme-secondary">Preview modo:</span>
@@ -432,7 +509,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
       </Section>
 
       <Section title="Temas salvos">
-        <ThemePresets currentSettings={{ ...settings, background_image: previewImage }} onLoad={applyPreview} />
+        <ThemePresets currentSettings={{ ...settings, background_image: previewImage, background_music: previewMusic }} onLoad={applyPreview} />
       </Section>
 
       {message && <p className="text-theme-secondary text-sm">{message}</p>}

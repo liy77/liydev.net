@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
-import { saveImage, UploadValidationError } from '@/lib/upload'
+import { saveImage, saveAudio, UploadValidationError } from '@/lib/upload'
 
 export async function POST(request: Request) {
   try {
@@ -11,13 +11,14 @@ export async function POST(request: Request) {
 
   try {
     const formData = await request.formData()
-    const file = formData.get('image') as File | null
+    const type = (formData.get('type') as string) || 'image'
+    const file = formData.get('file') as File | null
 
     if (!file) {
-      return NextResponse.json({ success: false, error: 'No image provided' }, { status: 400 })
+      return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 })
     }
 
-    const result = await saveImage(file)
+    const result = type === 'audio' ? await saveAudio(file) : await saveImage(file)
     return NextResponse.json({ success: true, path: result.path })
   } catch (error) {
     if (error instanceof UploadValidationError) {

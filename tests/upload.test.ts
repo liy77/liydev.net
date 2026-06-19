@@ -98,7 +98,8 @@ describe('upload API route', () => {
 
     const formData = new FormData()
     const buffer = await createImageBuffer({ format: 'png' })
-    formData.append('image', new File([buffer], 'test.png', { type: 'image/png' }))
+    formData.append('type', 'image')
+    formData.append('file', new File([buffer], 'test.png', { type: 'image/png' }))
 
     const request = new Request('http://localhost/api/upload', {
       method: 'POST',
@@ -111,7 +112,7 @@ describe('upload API route', () => {
     expect(data.success).toBe(false)
   })
 
-  it('returns 400 when image field is missing', async () => {
+  it('returns 400 when file field is missing', async () => {
     mockRequireAuth.mockResolvedValue({ id: 1, email: 'admin@example.com' })
 
     const request = new Request('http://localhost/api/upload', {
@@ -123,7 +124,7 @@ describe('upload API route', () => {
     expect(response.status).toBe(400)
     const data = await response.json()
     expect(data.success).toBe(false)
-    expect(data.error).toBe('No image provided')
+    expect(data.error).toBe('No file provided')
   })
 
   it('returns path for valid authenticated upload', async () => {
@@ -131,7 +132,8 @@ describe('upload API route', () => {
 
     const formData = new FormData()
     const buffer = await createImageBuffer({ format: 'webp' })
-    formData.append('image', new File([buffer], 'test.webp', { type: 'image/webp' }))
+    formData.append('type', 'image')
+    formData.append('file', new File([buffer], 'test.webp', { type: 'image/webp' }))
 
     const request = new Request('http://localhost/api/upload', {
       method: 'POST',
@@ -151,7 +153,8 @@ describe('upload API route', () => {
 
     const formData = new FormData()
     const buffer = Buffer.from('not an image')
-    formData.append('image', new File([buffer], 'fake.png', { type: 'image/png' }))
+    formData.append('type', 'image')
+    formData.append('file', new File([buffer], 'fake.png', { type: 'image/png' }))
 
     const request = new Request('http://localhost/api/upload', {
       method: 'POST',
@@ -169,7 +172,8 @@ describe('upload API route', () => {
 
     const buffer = await createLargePngBuffer()
     const formData = new FormData()
-    formData.append('image', new File([buffer], 'large.png', { type: 'image/png' }))
+    formData.append('type', 'image')
+    formData.append('file', new File([buffer], 'large.png', { type: 'image/png' }))
 
     const request = new Request('http://localhost/api/upload', {
       method: 'POST',

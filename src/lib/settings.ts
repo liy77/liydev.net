@@ -28,6 +28,8 @@ export interface SiteSettings {
   use_text_gradient: boolean
   glass_intensity: number
   background_image: string | null
+  background_music: string | null
+  music_volume: number
   updated_at: string
 }
 
@@ -58,6 +60,8 @@ const defaultSettings: Omit<SiteSettings, 'id' | 'updated_at'> = {
   use_text_gradient: true,
   glass_intensity: 70,
   background_image: null,
+  background_music: null,
+  music_volume: 50,
 }
 
 const allColumns = Object.keys(defaultSettings)
@@ -93,7 +97,8 @@ export function updateSettings(
       glass_bg = ?, glass_border = ?, glass_border_highlight = ?,
       glass_bg_light = ?, glass_border_light = ?, glass_border_highlight_light = ?,
       text_gradient_start = ?, text_gradient_end = ?, use_text_gradient = ?,
-      glass_intensity = ?, background_image = ?, updated_at = CURRENT_TIMESTAMP
+      glass_intensity = ?, background_image = ?, background_music = ?, music_volume = ?,
+      updated_at = CURRENT_TIMESTAMP
     WHERE id = 1`
   ).run(
     merged.theme_mode,
@@ -121,7 +126,9 @@ export function updateSettings(
     merged.text_gradient_end,
     merged.use_text_gradient ? 1 : 0,
     merged.glass_intensity,
-    merged.background_image
+    merged.background_image,
+    merged.background_music,
+    merged.music_volume
   )
   return getSettings()
 }
