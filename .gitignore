@@ -10,3 +10,4 @@ data/*
 public/uploads/*
 !.gitkeep
 .superpowers/
+.playwright-mcp/
