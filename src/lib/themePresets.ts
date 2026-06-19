@@ -36,8 +36,6 @@ export function deletePreset(id: number): void {
 
 export function seedDefaultPresets(): void {
   const db = getDatabase()
-  const exists = db.prepare("SELECT 1 FROM theme_presets WHERE name = ?").get('Ocarina of Time — Remake')
-  if (exists) return
 
   const ocarinaSettings = {
     theme_mode: 'dark',
@@ -66,12 +64,20 @@ export function seedDefaultPresets(): void {
     use_text_gradient: true,
     glass_intensity: 75,
     background_image: '/uploads/presets/ocarina-of-time-bg.jpg',
-    background_music: null,
+    background_music: '/uploads/presets/sarias-theme.mp3',
     music_volume: 50,
   }
 
-  db.prepare('INSERT INTO theme_presets (name, settings) VALUES (?, ?)').run(
-    'Ocarina of Time — Remake',
-    JSON.stringify(ocarinaSettings)
-  )
+  const existing = db.prepare('SELECT id FROM theme_presets WHERE name = ?').get('Ocarina of Time — Remake')
+  if (existing) {
+    db.prepare('UPDATE theme_presets SET settings = ? WHERE id = ?').run(
+      JSON.stringify(ocarinaSettings),
+      (existing as { id: number }).id
+    )
+  } else {
+    db.prepare('INSERT INTO theme_presets (name, settings) VALUES (?, ?)').run(
+      'Ocarina of Time — Remake',
+      JSON.stringify(ocarinaSettings)
+    )
+  }
 }

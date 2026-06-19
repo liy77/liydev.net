@@ -5,7 +5,7 @@ import sharp from 'sharp'
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public/uploads')
 const MAX_SIZE = 2 * 1024 * 1024 // 2MB
-const MAX_AUDIO_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_AUDIO_SIZE = 15 * 1024 * 1024 // 15MB
 const MAX_WIDTH = 1920
 const MAX_HEIGHT = 1080
 const MAX_PIXELS = 50_000_000
