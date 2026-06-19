@@ -1,19 +1,23 @@
-import { ReactNode, forwardRef, ElementType, ComponentPropsWithoutRef } from 'react'
+import { ReactNode } from 'react'
+import LiquidGlassWrapper from './LiquidGlassWrapper'
 
-type GlassCardProps<T extends ElementType = 'div'> = {
-  as?: T
+interface GlassCardProps {
   children: ReactNode
   className?: string
-} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'children' | 'className'>
+}
 
-const GlassCard = forwardRef<HTMLElement, GlassCardProps<ElementType>>(
-  ({ as: Component = 'div', children, className = '', ...props }, ref) => {
-    return (
-      <Component ref={ref} className={`glass-card p-6 ${className}`} {...props}>
-        {children}
-      </Component>
-    )
-  }
-)
-GlassCard.displayName = 'GlassCard'
-export default GlassCard
+export default function GlassCard({ children, className = '' }: GlassCardProps) {
+  return (
+    <LiquidGlassWrapper
+      className={`rounded-2xl ${className}`}
+      cornerRadius={16}
+      displacementScale={40}
+      blurAmount={0.08}
+      saturation={140}
+      aberrationIntensity={1}
+      elasticity={0.15}
+    >
+      <div className="p-6">{children}</div>
+    </LiquidGlassWrapper>
+  )
+}

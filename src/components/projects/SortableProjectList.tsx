@@ -30,12 +30,9 @@ export default function SortableProjectList({
   return (
     <ul className="space-y-3">
       {projects.map((project, index) => (
-        <GlassCard
-          as="li"
-          key={project.id}
-          className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 p-4"
-        >
-          <div className="flex items-start md:items-center gap-3">
+        <li key={project.id}>
+          <GlassCard className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 p-4">
+            <div className="flex items-start md:items-center gap-3">
             <span className="text-theme-secondary text-sm min-w-[2rem]">
               #{project.display_order}
             </span>
@@ -87,7 +84,8 @@ export default function SortableProjectList({
               Excluir
             </Button>
           </div>
-        </GlassCard>
+          </GlassCard>
+        </li>
       ))}
     </ul>
   )
