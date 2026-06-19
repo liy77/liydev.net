@@ -66,7 +66,7 @@ function ColorInput({
           type="color"
           value={toHex(value)}
           onChange={(e) => onChange(e.target.value)}
-          className="w-12 h-12 rounded-xl bg-transparent border border-theme-border cursor-pointer shrink-0 overflow-hidden"
+          className="w-12 h-12 rounded-xl cursor-pointer shrink-0 overflow-hidden"
         />
         <Input type="text" value={value} onChange={(e) => onChange(e.target.value)} />
       </div>
