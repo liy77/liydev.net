@@ -118,7 +118,8 @@ All admin pages under `/admin/(protected)` require login via JWT cookie.
   - Background image upload
   - Background music upload + default volume
   - Live iframe preview (dark/light toggle, fullscreen, open in new tab)
-  - Theme presets (save current theme, load, delete)
+  - Theme scope (works for dark only / light only / both) — single-mode themes lock the public toggle
+  - Theme presets (save current theme, load into editor, **Aplicar no site** to push a preset live to all visitors, delete)
 - Changes are previewed live in the admin UI and in the iframe.
 - Clicking **Salvar** persists to `site_settings` table.
 - Clicking **Voltar ao padrão** restores default theme.
@@ -157,7 +158,8 @@ All admin pages under `/admin/(protected)` require login via JWT cookie.
 
 Single-row table (`id = 1`) storing:
 
-- `theme_mode` — `dark`, `light`, or `system`
+- `theme_mode` — `dark`, `light`, or `system` (default mode when scope is `both`)
+- `theme_scope` — `both`, `dark`, or `light`. When `dark`/`light`, the public site is locked to that mode and the theme toggle is hidden from visitors (`ThemeProvider` exposes `locked`, `ThemeToggle` renders `null`). When `both`, both palettes are used and the toggle is shown.
 - Dark palette: `background_start`, `background_mid`, `background_end`, `text_primary`, `text_secondary`, `text_muted`, `accent_color`, `glass_bg`, `glass_border`, `glass_border_highlight`
 - Light palette: same fields with `_light` suffix
 - `text_gradient_start`, `text_gradient_end`, `use_text_gradient`
@@ -175,17 +177,35 @@ Single-row table (`id = 1`) storing:
 - CSS variables are defined in `src/app/globals.css`.
 - `ThemeProvider` fetches `/api/settings` and applies active palette + mode.
 - `applySettingsToCSS(settings, mode?)` in `src/lib/theme.ts` writes variables to the document root.
+- The background image is painted on a fixed `#site-bg` layer (rendered in `layout.tsx`), **not** via `background-attachment: fixed` on `<html>` (which is broken on iOS Safari and caused white gaps near the status/URL bars). `applySettingsToCSS` also syncs the `<meta name="theme-color">` and `html` background-color to the active palette so mobile browser chrome matches.
+- `viewport` export in `layout.tsx` sets `viewport-fit=cover` + a dark default `themeColor`; iOS status bar style is `black-translucent`.
+- `AnimatedBackground` reduces particle count and disables connection lines on mobile/touch (`pointer: coarse`) and pauses on `visibilitychange` for performance.
 - Classes:
   - `.glass-card` — frosted glass panel with animated shine on hover
   - `.glass-button` — frosted glass button
   - `.text-gradient` — gradient text using theme colors
+  - `.text-on-bg` — subtle text-shadow for text sitting directly over the background image (hero eyebrow/title/subtitle, section headings). Needed for legibility on themes with a background image; glass-card text doesn't use it.
+- **Comboboxes (`Select`)**: native `<select>`/`<option>` don't inherit the translucent glass surface, so the value/options were unreadable. The select uses a solid `var(--background-mid)` background and `globals.css` styles `select option` with solid `--background-mid`/`--text-primary`. Keep this when adding new selects.
+- **Readability over a background image**: cream/light text needs the image darkened. Background presets are pre-processed with a dark scrim (see "Theme presets & assets"); also bump `text_secondary`/`text_muted` alpha and apply `.text-on-bg` to over-image text.
+
+## Theme presets & assets
+
+- **`seedDefaultPresets()` in `src/lib/themePresets.ts` is the canonical source for the built-in "Ocarina of Time" theme.** It runs on every server init (`initializeDatabase`) and UPSERTs the preset by name. If you change the theme, edit the `ocarinaSettings` object there too — otherwise a server restart silently overwrites your DB changes (and a name mismatch creates duplicates). It also deletes the legacy name `Ocarina of Time — Remake`.
+- The current built-in theme is **"Ocarina of Time"**: `theme_scope: 'dark'` (forest is dark, light mode would be unreadable over it), Triforce-gold accent (`#f4c64a`), gold→Kokiri-green text gradient, green-tinted glass, cream text, background `=/uploads/presets/kokiri-forest-bg.jpg`, music `=/uploads/presets/sarias-theme.mp3`.
+- Preset assets live in `public/uploads/presets/` (gitignored — force-add to commit). Background images are pre-processed with **sharp**: resize to cover, `modulate` (lower brightness ~0.66–0.82, boost saturation), and composite a dark green SVG scrim/vignette so light text stays legible. Output progressive mozjpeg ~80–86 quality (keeps files ~80–210 KB).
+- **Background fidelity vs sharpness tradeoff** (learned with the user): the authentic Kokiri Forest is a 1998 N64 render — only ~1080p and soft, so it looks blurry on 4K monitors and that's inherent (no detail to upscale). A true 4K royalty-free forest photo is sharp but isn't the literal game. The user chose the authentic N64 image knowing it's soft at 4K.
+- **Copyright note**: actual Zelda/Nintendo art (Kokiri Forest, OoT screenshots) and the original Saria's Song are copyrighted. Using them is the site owner's call/risk for a personal site — don't source/deploy copyrighted assets without explicit user confirmation. Pinterest is login-gated and can't be fetched directly. Alpha Coders full-res URL pattern: `images{N}.alphacoders.com/{first-3-digits}/{id}.png`.
 
 ## Background Music
 
 - `BackgroundMusic` component fetches settings and plays `background_music` in a loop.
 - Player appears bottom-right only when a music file is configured.
-- User can mute/unmute and adjust volume.
+- The round button toggles play/mute **and** expands/collapses the volume panel in one tap (tap-friendly for mobile; no hover dependency). Inside the panel there's also a mute toggle + volume slider.
+- Dragging the volume above 0 while muted unmutes automatically.
 - Mute state is saved in `localStorage` (`bg-music-muted`).
+- **Volume uses the Web Audio API (`AudioContext` → `MediaElementAudioSourceNode` → `GainNode`), NOT `audio.volume`.** On iOS/Safari `HTMLMediaElement.volume` is read-only and silently ignored, so the slider only works through a `GainNode`. The graph is built lazily inside a user gesture (autoplay policy) and the context is `resume()`d on unmute. `audio.volume` is only a pre-graph fallback (desktop).
+- `audio.preload` is `'none'` while muted so a large track isn't downloaded on page load (mobile perf); `play()` forces the load on unmute.
+- Autoplay with sound is blocked until a user gesture — the track never plays on load by design; first play happens on the user's tap.
 
 ## Conventions
 

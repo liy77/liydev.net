@@ -97,14 +97,29 @@ html.light {
 }
 
 html {
-  background: linear-gradient(135deg, var(--background-start) 0%, var(--background-mid) 50%, var(--background-end) 100%);
-  transition: background 0.5s ease;
+  /* Solid fallback first so iOS Safari never flashes white around the chrome. */
+  background-color: var(--background-end);
+  background-image: linear-gradient(135deg, var(--background-start) 0%, var(--background-mid) 50%, var(--background-end) 100%);
+  transition: background-color 0.5s ease;
 }
 
 body {
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh;
   transition: color 0.5s ease;
+}
+
+/* Fixed background-image layer. Replaces `background-attachment: fixed` on <html>,
+   which is broken on iOS Safari (white gaps + scroll jank). */
+#site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -20;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 input[type='color'] {
@@ -252,7 +267,7 @@ input[type='color']::-moz-color-swatch {
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, var(--text-gradient-start), var(--text-gradient-end));
+    background: var(--text-gradient-css, linear-gradient(135deg, var(--text-gradient-start), var(--text-gradient-end)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -283,4 +298,17 @@ input[type='color']::-moz-color-swatch {
   .hover\:bg-theme-surface:hover {
     background-color: var(--surface-hover);
   }
+}
+
+/* Texto que fica diretamente sobre a imagem de fundo (fora de glass cards).
+   A sombra sutil garante legibilidade mesmo nas áreas mais claras da imagem. */
+.text-on-bg {
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+/* Comboboxes: garante contraste do valor e das opções em qualquer tema.
+   O dropdown nativo não herda glass translúcido, então usamos cores sólidas. */
+select option {
+  background-color: var(--background-mid);
+  color: var(--text-primary);
 }

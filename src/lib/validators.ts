@@ -20,6 +20,7 @@ export const projectWithImageSchema = projectSchema.extend({
 
 export const settingsUpdateSchema = z.object({
   theme_mode: z.enum(['light', 'dark', 'system']).optional(),
+  theme_scope: z.enum(['both', 'dark', 'light']).optional(),
   background_start: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   background_end: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   background_mid: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
@@ -41,12 +42,15 @@ export const settingsUpdateSchema = z.object({
   glass_border_light: z.string().optional(),
   glass_border_highlight_light: z.string().optional(),
   text_gradient_start: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  text_gradient_mid: z.string().regex(/^#[0-9A-Fa-f]{6}$/).nullable().optional(),
   text_gradient_end: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   use_text_gradient: z.boolean().optional(),
   glass_intensity: z.number().int().min(0).max(100).optional(),
   background_image: z.string().nullable().optional(),
   background_music: z.string().nullable().optional(),
   music_volume: z.number().int().min(0).max(100).optional(),
+  background_image_credit: z.string().max(200).nullable().optional(),
+  background_music_credit: z.string().max(200).nullable().optional(),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>

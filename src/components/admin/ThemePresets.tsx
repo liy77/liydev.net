@@ -64,6 +64,30 @@ export default function ThemePresets({ currentSettings, onLoad }: ThemePresetsPr
     }
   }
 
+  const handleApply = async (preset: ThemePreset) => {
+    if (!confirm(`Aplicar o tema "${preset.name}" no site para todos os visitantes?`)) return
+    setLoading(true)
+    setMessage('')
+    try {
+      // Reflete no formulário/preview imediatamente
+      onLoad(preset.settings)
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preset.settings),
+      })
+      if (res.ok) {
+        setMessage(`Tema "${preset.name}" aplicado no site`)
+      } else {
+        setMessage('Erro ao aplicar tema no site')
+      }
+    } catch {
+      setMessage('Erro de rede ao aplicar tema')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleDelete = async (id: number) => {
     if (!confirm('Excluir tema salvo?')) return
     try {
@@ -101,22 +125,30 @@ export default function ThemePresets({ currentSettings, onLoad }: ThemePresetsPr
           {presets.map((preset) => (
             <li
               key={preset.id}
-              className="flex items-center justify-between gap-3 p-3 rounded-xl bg-theme-surface/50 border border-theme-border"
+              className="flex flex-col gap-3 p-3 rounded-xl bg-theme-surface/50 border border-theme-border sm:flex-row sm:items-center sm:justify-between"
             >
-              <span className="text-theme-primary font-medium truncate">{preset.name}</span>
-              <div className="flex items-center gap-2 shrink-0">
+              <span className="text-theme-primary font-medium break-words sm:truncate">{preset.name}</span>
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:shrink-0">
                 <Button
                   type="button"
                   variant="secondary"
-                  className="h-8 px-3 text-sm"
+                  className="h-9 px-2 text-sm w-full sm:w-auto sm:px-3"
                   onClick={() => onLoad(preset.settings)}
                 >
                   Carregar
                 </Button>
                 <Button
                   type="button"
+                  className="h-9 px-2 text-sm w-full sm:w-auto sm:px-3"
+                  disabled={loading}
+                  onClick={() => handleApply(preset)}
+                >
+                  Aplicar
+                </Button>
+                <Button
+                  type="button"
                   variant="danger"
-                  className="h-8 px-3 text-sm"
+                  className="h-9 px-2 text-sm w-full sm:w-auto sm:px-3"
                   onClick={() => handleDelete(preset.id)}
                 >
                   Excluir

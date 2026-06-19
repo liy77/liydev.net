@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
@@ -6,6 +6,7 @@ import AnimatedBackground from '@/components/ui/AnimatedBackground'
 import Navbar from '@/components/ui/Navbar'
 import ThemeProvider from '@/components/ui/ThemeProvider'
 import BackgroundMusic from '@/components/ui/BackgroundMusic'
+import MediaCredits from '@/components/ui/MediaCredits'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,6 +19,18 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+  appleWebApp: {
+    statusBarStyle: 'black-translucent',
+  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  // Dark default so the mobile browser chrome matches before JS applies the
+  // active theme. ThemeProvider/applySettingsToCSS updates this at runtime.
+  themeColor: '#06120c',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -44,12 +57,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.className} antialiased relative min-h-screen pt-24`}>
         <ThemeProvider>
+          <div id="site-bg" aria-hidden="true" />
           <AnimatedBackground />
           <Navbar />
           {children}
           <BackgroundMusic />
           <footer className="relative z-10 px-6 py-8 text-center text-sm text-theme-muted">
             <p>© {new Date().getFullYear()} liy.dev — Construído com Next.js, SQLite e muito café.</p>
+            <MediaCredits />
           </footer>
         </ThemeProvider>
       </body>

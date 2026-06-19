@@ -24,6 +24,14 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // Lighten the animation drastically on mobile / touch devices: fewer particles
+    // and no connection lines. This is the main source of jank and slow first
+    // paint on phones.
+    const isMobile =
+      window.matchMedia('(max-width: 768px)').matches ||
+      window.matchMedia('(pointer: coarse)').matches
+    const drawLines = !isMobile
+
     const root = document.documentElement
     const themeColors = {
       '--canvas-start': '#0a0a0f',
@@ -53,7 +61,9 @@ export default function AnimatedBackground() {
     }
 
     const initParticles = () => {
-      const count = Math.min(Math.floor((width * height) / 25000), 80)
+      const density = isMobile ? 60000 : 25000
+      const cap = isMobile ? 28 : 80
+      const count = Math.min(Math.floor((width * height) / density), cap)
       particlesRef.current = []
       for (let i = 0; i < count; i++) {
         const x = Math.random() * width
@@ -82,6 +92,15 @@ export default function AnimatedBackground() {
     window.addEventListener('resize', resize)
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseleave', handleMouseLeave)
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId)
+      } else {
+        animationFrameId = requestAnimationFrame(animate)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
 
     let blobs = [
       { x: width * 0.2, y: height * 0.3, r: 300, dx: 0.3, dy: 0.2, color: getVar('--blob-blue') },
@@ -188,7 +207,8 @@ export default function AnimatedBackground() {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
         ctx.fill()
 
-        // Connect nearby particles
+        // Connect nearby particles (skipped on mobile for performance)
+        if (!drawLines) continue
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j]
           const dx = p.x - p2.x
@@ -215,6 +235,8 @@ export default function AnimatedBackground() {
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseleave', handleMouseLeave)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      themeObserver.disconnect()
       cancelAnimationFrame(animationFrameId)
     }
   }, [])

@@ -3,6 +3,7 @@ import { getDatabase } from './db'
 export interface SiteSettings {
   id: number
   theme_mode: 'light' | 'dark' | 'system'
+  theme_scope: 'both' | 'dark' | 'light'
   background_start: string
   background_end: string
   background_mid: string
@@ -24,17 +25,21 @@ export interface SiteSettings {
   glass_border_light: string
   glass_border_highlight_light: string
   text_gradient_start: string
+  text_gradient_mid: string | null
   text_gradient_end: string
   use_text_gradient: boolean
   glass_intensity: number
   background_image: string | null
   background_music: string | null
   music_volume: number
+  background_image_credit: string | null
+  background_music_credit: string | null
   updated_at: string
 }
 
 const defaultSettings: Omit<SiteSettings, 'id' | 'updated_at'> = {
   theme_mode: 'dark',
+  theme_scope: 'both',
   background_start: '#0a0a0f',
   background_end: '#1a1a2e',
   background_mid: '#0f0f1a',
@@ -56,12 +61,15 @@ const defaultSettings: Omit<SiteSettings, 'id' | 'updated_at'> = {
   glass_border_light: 'rgba(0, 0, 0, 0.12)',
   glass_border_highlight_light: 'rgba(255, 255, 255, 0.7)',
   text_gradient_start: '#38bdf8',
+  text_gradient_mid: null,
   text_gradient_end: '#a855f7',
   use_text_gradient: true,
   glass_intensity: 70,
   background_image: null,
   background_music: null,
   music_volume: 50,
+  background_image_credit: null,
+  background_music_credit: null,
 }
 
 const allColumns = Object.keys(defaultSettings)
@@ -89,6 +97,7 @@ export function updateSettings(
   db.prepare(
     `UPDATE site_settings SET
       theme_mode = ?,
+      theme_scope = ?,
       background_start = ?, background_end = ?, background_mid = ?,
       background_start_light = ?, background_end_light = ?, background_mid_light = ?,
       text_primary = ?, text_secondary = ?, text_muted = ?,
@@ -96,12 +105,14 @@ export function updateSettings(
       accent_color = ?, accent_color_light = ?,
       glass_bg = ?, glass_border = ?, glass_border_highlight = ?,
       glass_bg_light = ?, glass_border_light = ?, glass_border_highlight_light = ?,
-      text_gradient_start = ?, text_gradient_end = ?, use_text_gradient = ?,
+      text_gradient_start = ?, text_gradient_mid = ?, text_gradient_end = ?, use_text_gradient = ?,
       glass_intensity = ?, background_image = ?, background_music = ?, music_volume = ?,
+      background_image_credit = ?, background_music_credit = ?,
       updated_at = CURRENT_TIMESTAMP
     WHERE id = 1`
   ).run(
     merged.theme_mode,
+    merged.theme_scope,
     merged.background_start,
     merged.background_end,
     merged.background_mid,
@@ -123,12 +134,15 @@ export function updateSettings(
     merged.glass_border_light,
     merged.glass_border_highlight_light,
     merged.text_gradient_start,
+    merged.text_gradient_mid,
     merged.text_gradient_end,
     merged.use_text_gradient ? 1 : 0,
     merged.glass_intensity,
     merged.background_image,
     merged.background_music,
-    merged.music_volume
+    merged.music_volume,
+    merged.background_image_credit,
+    merged.background_music_credit
   )
   return getSettings()
 }

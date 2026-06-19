@@ -18,16 +18,22 @@ export default function HomePage() {
     <main className="min-h-screen px-6 py-12 max-w-6xl mx-auto">
       <section className="relative py-20 md:py-32 mb-20 text-center overflow-hidden">
         <div className="absolute inset-0 -z-10 opacity-30">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/20 blur-[120px]" />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px]"
+            style={{ backgroundColor: 'var(--accent-blue)', opacity: 0.2 }}
+          />
         </div>
 
-        <p className="text-blue-500 font-medium mb-4 tracking-wide uppercase text-sm animate-fade-in">
+        <p
+          className="font-medium mb-4 tracking-wide uppercase text-sm animate-fade-in text-on-bg"
+          style={{ color: 'var(--accent-blue)' }}
+        >
           Portfolio de desenvolvimento
         </p>
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up [filter:drop-shadow(0_2px_8px_rgba(0,0,0,0.55))]">
           <span className="text-gradient">liy.dev</span>
         </h1>
-        <p className="text-xl md:text-2xl text-theme-secondary max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <p className="text-xl md:text-2xl text-theme-secondary max-w-2xl mx-auto mb-10 animate-slide-up text-on-bg" style={{ animationDelay: '100ms' }}>
           Linguagens de programação, engines de jogos e ferramentas nativas.
           <br />
           Código que vira realidade.
@@ -45,8 +51,8 @@ export default function HomePage() {
       <section id="projetos" className="scroll-mt-20">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-theme-primary mb-2">Projetos</h2>
-            <p className="text-theme-muted">Coisas que eu construí do zero.</p>
+            <h2 className="text-3xl font-bold text-theme-primary mb-2 text-on-bg">Projetos</h2>
+            <p className="text-theme-muted text-on-bg">Coisas que eu construí do zero.</p>
           </div>
           <Link href="/about" className="text-sm text-theme-muted hover:text-theme-primary transition-colors hidden sm:block">
             Sobre →

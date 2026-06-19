@@ -52,22 +52,34 @@ export function applySettingsToCSS(
   root.style.setProperty('--glass-border-highlight', isLight ? settings.glass_border_highlight_light : settings.glass_border_highlight)
   root.style.setProperty('--text-gradient-start', settings.text_gradient_start)
   root.style.setProperty('--text-gradient-end', settings.text_gradient_end)
+  // Monta o gradiente do título com cor do meio opcional (evita um meio "embaçado"
+  // quando start/end são muito distantes no espaço de cor, ex: vermelho -> dourado).
+  const gradientStops = settings.text_gradient_mid
+    ? `${settings.text_gradient_start}, ${settings.text_gradient_mid}, ${settings.text_gradient_end}`
+    : `${settings.text_gradient_start}, ${settings.text_gradient_end}`
+  root.style.setProperty('--text-gradient-css', `linear-gradient(135deg, ${gradientStops})`)
   root.style.setProperty('--use-text-gradient', settings.use_text_gradient ? '1' : '0')
   root.style.setProperty('--glass-intensity', String(settings.glass_intensity))
 
   document.body.setAttribute('data-text-gradient', settings.use_text_gradient ? 'true' : 'false')
 
-  if (settings.background_image) {
-    root.style.backgroundImage = `url(${settings.background_image})`
-    root.style.backgroundSize = 'cover'
-    root.style.backgroundPosition = 'center'
-    root.style.backgroundAttachment = 'fixed'
-  } else {
-    root.style.backgroundImage = ''
-    root.style.backgroundSize = ''
-    root.style.backgroundPosition = ''
-    root.style.backgroundAttachment = ''
+  // Background image is painted on a dedicated fixed layer (#site-bg) instead of
+  // the <html> element with `background-attachment: fixed`. The fixed attachment
+  // is broken on iOS Safari (white gaps near the status/URL bars and janky on
+  // scroll), so we use a position:fixed element that the OS composites cleanly.
+  const bgLayer = document.getElementById('site-bg')
+  if (bgLayer) {
+    bgLayer.style.backgroundImage = settings.background_image
+      ? `url(${settings.background_image})`
+      : ''
   }
+
+  // Keep the mobile browser chrome (status bar / URL bar) in sync with the theme
+  // so iOS Safari doesn't render white bars around the page.
+  const chromeColor = isLight ? settings.background_start_light : settings.background_end
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+  if (themeColorMeta) themeColorMeta.setAttribute('content', chromeColor)
+  root.style.backgroundColor = chromeColor
 
   return activeMode
 }

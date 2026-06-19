@@ -10,12 +10,14 @@ interface ThemeContextType {
   theme: Theme
   toggleTheme: () => void
   mounted: boolean
+  locked: boolean
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
   mounted: false,
+  locked: false,
 })
 
 export function useTheme() {
@@ -29,6 +31,7 @@ interface ThemeProviderProps {
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
+  const [locked, setLocked] = useState(false)
 
   useEffect(() => {
     const urlMode = new URLSearchParams(window.location.search).get('theme') as Theme | null
@@ -36,18 +39,25 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     fetch('/api/settings')
       .then((res) => (res.ok ? res.json() : null))
       .then((settings: SiteSettings | null) => {
+        const scope = settings?.theme_scope ?? 'both'
         const saved = localStorage.getItem('theme') as Theme | null
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        const initialMode: Theme =
-          urlMode ||
-          saved ||
-          (settings?.theme_mode === 'system'
-            ? prefersDark
-              ? 'dark'
-              : 'light'
-            : settings?.theme_mode === 'light'
-              ? 'light'
-              : 'dark')
+
+        // When the theme supports a single mode, force it and lock the toggle.
+        const isLocked = scope === 'dark' || scope === 'light'
+        setLocked(isLocked)
+
+        const initialMode: Theme = isLocked
+          ? (scope as Theme)
+          : urlMode ||
+            saved ||
+            (settings?.theme_mode === 'system'
+              ? prefersDark
+                ? 'dark'
+                : 'light'
+              : settings?.theme_mode === 'light'
+                ? 'light'
+                : 'dark')
 
         setTheme(initialMode)
         if (settings) {
@@ -65,6 +75,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   }, [])
 
   const toggleTheme = () => {
+    if (locked) return
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
@@ -80,7 +91,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, mounted, locked }}>
       {children}
     </ThemeContext.Provider>
   )

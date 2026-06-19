@@ -5,12 +5,12 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 pointer-events-auto">
       <div className="max-w-6xl mx-auto relative">
-        <div className="glass-card px-6 py-3 flex items-center justify-between pointer-events-auto">
-          <Link href="/" className="text-xl font-bold text-gradient pointer-events-auto relative z-10">
+        <div className="glass-card px-4 sm:px-6 py-3 flex items-center justify-between gap-2 pointer-events-auto">
+          <Link href="/" className="text-lg sm:text-xl font-bold text-gradient pointer-events-auto relative z-10 shrink-0">
             liy.dev
           </Link>
 
-          <div className="flex items-center gap-6 pointer-events-auto relative z-10">
+          <div className="flex items-center gap-3 sm:gap-6 pointer-events-auto relative z-10">
             <Link
               href="/"
               className="text-sm text-theme-secondary hover:text-theme-primary transition-colors pointer-events-auto"

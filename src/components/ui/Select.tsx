@@ -19,14 +19,15 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <div className="relative">
           <select
             ref={ref}
+            style={{ backgroundColor: 'var(--background-mid)' }}
             className={`
               w-full appearance-none
-              bg-theme-surface/60 hover:bg-theme-surface
               border border-theme-border hover:border-theme-secondary
-              text-theme-primary
+              text-theme-primary font-medium
               rounded-xl px-4 py-2.5 pr-10
               focus:outline-none focus:ring-2 focus:ring-accent-blue/50 focus:border-accent-blue
               transition-colors cursor-pointer
+              disabled:opacity-50 disabled:cursor-not-allowed
               ${className}
             `.trim()}
             {...props}

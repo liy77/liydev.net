@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS theme_presets (
 CREATE TABLE IF NOT EXISTS site_settings (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   theme_mode TEXT NOT NULL DEFAULT 'dark',
+  theme_scope TEXT NOT NULL DEFAULT 'both',
   background_start TEXT NOT NULL DEFAULT '#0a0a0f',
   background_end TEXT NOT NULL DEFAULT '#1a1a2e',
   background_mid TEXT NOT NULL DEFAULT '#0f0f1a',
@@ -66,12 +67,15 @@ CREATE TABLE IF NOT EXISTS site_settings (
   glass_border_light TEXT NOT NULL DEFAULT 'rgba(0, 0, 0, 0.12)',
   glass_border_highlight_light TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.7)',
   text_gradient_start TEXT NOT NULL DEFAULT '#38bdf8',
+  text_gradient_mid TEXT,
   text_gradient_end TEXT NOT NULL DEFAULT '#a855f7',
   use_text_gradient INTEGER NOT NULL DEFAULT 1,
   glass_intensity INTEGER NOT NULL DEFAULT 70,
   background_image TEXT,
   background_music TEXT,
   music_volume INTEGER NOT NULL DEFAULT 50,
+  background_image_credit TEXT,
+  background_music_credit TEXT,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `
@@ -128,6 +132,7 @@ function runMigrations(database: InstanceType<typeof Database>): void {
   }
 
   addColumn("theme_mode", "TEXT NOT NULL DEFAULT 'dark'")
+  addColumn("theme_scope", "TEXT NOT NULL DEFAULT 'both'")
   addColumn("background_start_light", "TEXT NOT NULL DEFAULT '#f0f0f5'")
   addColumn("background_end_light", "TEXT NOT NULL DEFAULT '#e3e3e9'")
   addColumn("background_mid_light", "TEXT NOT NULL DEFAULT '#ebebf0'")
@@ -139,11 +144,14 @@ function runMigrations(database: InstanceType<typeof Database>): void {
   addColumn("glass_border_light", "TEXT NOT NULL DEFAULT 'rgba(0,0,0,0.12)'")
   addColumn("glass_border_highlight_light", "TEXT NOT NULL DEFAULT 'rgba(255,255,255,0.7)'")
   addColumn("text_gradient_start", "TEXT NOT NULL DEFAULT '#38bdf8'")
+  addColumn("text_gradient_mid", "TEXT")
   addColumn("text_gradient_end", "TEXT NOT NULL DEFAULT '#a855f7'")
   addColumn("use_text_gradient", "INTEGER NOT NULL DEFAULT 1")
   addColumn("glass_intensity", "INTEGER NOT NULL DEFAULT 70")
   addColumn("background_music", "TEXT")
   addColumn("music_volume", "INTEGER NOT NULL DEFAULT 50")
+  addColumn("background_image_credit", "TEXT")
+  addColumn("background_music_credit", "TEXT")
 }
 
 /**

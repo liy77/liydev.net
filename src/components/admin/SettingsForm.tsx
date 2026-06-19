@@ -76,11 +76,70 @@ function ColorInput({
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function CopyrightFields({
+  checked,
+  onToggle,
+  credit,
+  onCreditChange,
+  placeholder,
+}: {
+  checked: boolean
+  onToggle: (v: boolean) => void
+  credit: string
+  onCreditChange: (v: string) => void
+  placeholder: string
+}) {
+  return (
+    <div className="mt-4 pt-4 border-t border-theme-border space-y-3">
+      <label className="inline-flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="w-5 h-5 rounded border-theme-border bg-theme-surface text-accent-blue focus:ring-accent-blue"
+        />
+        <span className="text-theme-primary">Tem copyright (mostrar crédito no site)</span>
+      </label>
+      {checked && (
+        <div className="space-y-1">
+          <label className="text-sm text-theme-secondary">Pertence a (marca / autor)</label>
+          <Input
+            type="text"
+            value={credit}
+            placeholder={placeholder}
+            onChange={(e) => onCreditChange(e.target.value)}
+          />
+          <p className="text-xs text-theme-muted">
+            Será exibido como aviso de créditos no rodapé do site.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Section({
+  title,
+  children,
+  dimmed = false,
+  hint,
+}: {
+  title: string
+  children: React.ReactNode
+  dimmed?: boolean
+  hint?: string
+}) {
   return (
     <GlassCard>
-      <h2 className="text-xl font-semibold text-theme-primary mb-4">{title}</h2>
-      {children}
+      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <h2 className="text-xl font-semibold text-theme-primary">{title}</h2>
+        {dimmed && hint && (
+          <span className="text-xs px-2 py-1 rounded-lg bg-theme-surface border border-theme-border text-theme-muted">
+            {hint}
+          </span>
+        )}
+      </div>
+      <div className={dimmed ? 'opacity-40 pointer-events-none select-none' : ''}>{children}</div>
     </GlassCard>
   )
 }
@@ -100,6 +159,9 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   )
   const [previewImage, setPreviewImage] = useState<string | null>(initialSettings.background_image)
   const [previewMusic, setPreviewMusic] = useState<string | null>(initialSettings.background_music)
+  const [useMiddleColor, setUseMiddleColor] = useState(!!initialSettings.text_gradient_mid)
+  const [imageHasCopyright, setImageHasCopyright] = useState(!!initialSettings.background_image_credit)
+  const [musicHasCopyright, setMusicHasCopyright] = useState(!!initialSettings.background_music_credit)
   const [uploading, setUploading] = useState(false)
   const [uploadingMusic, setUploadingMusic] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -228,6 +290,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           theme_mode: 'dark',
+          theme_scope: 'both',
           background_start: '#0a0a0f',
           background_end: '#1a1a2e',
           background_mid: '#0f0f1a',
@@ -249,12 +312,15 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
           glass_border_light: 'rgba(0, 0, 0, 0.12)',
           glass_border_highlight_light: 'rgba(255, 255, 255, 0.7)',
           text_gradient_start: '#38bdf8',
+          text_gradient_mid: null,
           text_gradient_end: '#a855f7',
           use_text_gradient: true,
           glass_intensity: 70,
           background_image: null,
           background_music: null,
           music_volume: 50,
+          background_image_credit: null,
+          background_music_credit: null,
         }),
       })
       if (res.ok) {
@@ -263,6 +329,9 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         setPreviewImage(null)
         setPreviewMusic(null)
         setPreviewMode('dark')
+        setImageHasCopyright(false)
+        setMusicHasCopyright(false)
+        setUseMiddleColor(false)
         setMessage('Tema padrão restaurado')
       } else {
         setMessage('Erro ao restaurar padrão')
@@ -283,31 +352,71 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Section title="Modo padrão do site">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="w-full sm:w-48">
-            <Select
-              value={settings.theme_mode}
-              onChange={(e) => {
-                const mode = e.target.value as SiteSettings['theme_mode']
-                const next = { ...settings, theme_mode: mode }
-                const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
-                setPreviewMode(effectiveMode)
-                applyPreview(next)
-              }}
-            >
-              <option value="dark">Escuro</option>
-              <option value="light">Claro</option>
-              <option value="system">Sistema</option>
-            </Select>
+      <Section title="Escopo e modo do tema">
+        <div className="space-y-5">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="w-full sm:w-48">
+              <label className="text-sm text-theme-secondary block mb-1">Este tema serve para</label>
+              <Select
+                value={settings.theme_scope}
+                onChange={(e) => {
+                  const scope = e.target.value as SiteSettings['theme_scope']
+                  const next = { ...settings, theme_scope: scope }
+                  if (scope === 'dark') {
+                    next.theme_mode = 'dark'
+                    setPreviewMode('dark')
+                  } else if (scope === 'light') {
+                    next.theme_mode = 'light'
+                    setPreviewMode('light')
+                  }
+                  applyPreview(next)
+                }}
+              >
+                <option value="both">Modo claro e escuro</option>
+                <option value="dark">Apenas modo escuro</option>
+                <option value="light">Apenas modo claro</option>
+              </Select>
+            </div>
+            <p className="text-sm text-theme-secondary">
+              Quando o tema serve só para um modo, o botão de troca de tema some para os
+              visitantes e o site fica travado nesse modo. Em &quot;ambos&quot;, configure as
+              duas paletas (clara e escura).
+            </p>
           </div>
-          <p className="text-sm text-theme-secondary">
-            Define qual tema o site carrega por padrão para novos visitantes.
-          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="w-full sm:w-48">
+              <label className="text-sm text-theme-secondary block mb-1">Modo padrão ao carregar</label>
+              <Select
+                value={settings.theme_mode}
+                disabled={settings.theme_scope !== 'both'}
+                onChange={(e) => {
+                  const mode = e.target.value as SiteSettings['theme_mode']
+                  const next = { ...settings, theme_mode: mode }
+                  const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
+                  setPreviewMode(effectiveMode)
+                  applyPreview(next)
+                }}
+              >
+                <option value="dark">Escuro</option>
+                <option value="light">Claro</option>
+                <option value="system">Sistema</option>
+              </Select>
+            </div>
+            <p className="text-sm text-theme-secondary">
+              {settings.theme_scope === 'both'
+                ? 'Define qual tema o site carrega por padrão para novos visitantes.'
+                : 'Definido automaticamente pelo escopo selecionado acima.'}
+            </p>
+          </div>
         </div>
       </Section>
 
-      <Section title="Paleta escura">
+      <Section
+        title="Paleta escura"
+        dimmed={settings.theme_scope === 'light'}
+        hint="Não usada (tema só claro)"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {darkFields.map((field) => (
             <ColorInput
@@ -330,7 +439,11 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </Section>
 
-      <Section title="Paleta clara">
+      <Section
+        title="Paleta clara"
+        dimmed={settings.theme_scope === 'dark'}
+        hint="Não usada (tema só escuro)"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {lightFields.map((field) => (
             <ColorInput
@@ -365,18 +478,42 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             <span className="text-theme-primary">Usar gradiente no título</span>
           </label>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ColorInput
             label="Início do gradiente"
             value={settings.text_gradient_start}
             onChange={(v) => handleColorChange('text_gradient_start', v)}
           />
+          {useMiddleColor && (
+            <ColorInput
+              label="Meio do gradiente"
+              value={settings.text_gradient_mid || '#ffffff'}
+              onChange={(v) => handleColorChange('text_gradient_mid', v)}
+            />
+          )}
           <ColorInput
             label="Fim do gradiente"
             value={settings.text_gradient_end}
             onChange={(v) => handleColorChange('text_gradient_end', v)}
           />
         </div>
+        <label className="inline-flex items-center gap-2 cursor-pointer mt-4">
+          <input
+            type="checkbox"
+            checked={useMiddleColor}
+            onChange={(e) => {
+              const on = e.target.checked
+              setUseMiddleColor(on)
+              applyPreview({ ...settings, text_gradient_mid: on ? (settings.text_gradient_mid || '#ffffff') : null })
+            }}
+            className="w-5 h-5 rounded border-theme-border bg-theme-surface text-accent-blue focus:ring-accent-blue"
+          />
+          <span className="text-theme-primary">Usar cor no meio do gradiente</span>
+        </label>
+        <p className="text-xs text-theme-muted mt-1">
+          Útil quando início e fim são cores distantes (ex: vermelho → dourado) e o meio fica
+          embaçado. Uma cor no meio (ex: branco) deixa a transição limpa.
+        </p>
       </Section>
 
       <Section title="Intensidade do liquid glass">
@@ -418,6 +555,16 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             </Button>
           </div>
         )}
+        <CopyrightFields
+          checked={imageHasCopyright}
+          onToggle={(v) => {
+            setImageHasCopyright(v)
+            if (!v) applyPreview({ ...settings, background_image_credit: null })
+          }}
+          credit={settings.background_image_credit || ''}
+          onCreditChange={(v) => applyPreview({ ...settings, background_image_credit: v })}
+          placeholder="Ex: The Legend of Zelda: Ocarina of Time © Nintendo"
+        />
       </Section>
 
       <Section title="Música de fundo">
@@ -457,6 +604,16 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
           {!previewMusic && !uploadingMusic && (
             <p className="text-sm text-theme-muted">MP3, WAV, OGG, WebM ou AAC. Máx. 10MB.</p>
           )}
+          <CopyrightFields
+            checked={musicHasCopyright}
+            onToggle={(v) => {
+              setMusicHasCopyright(v)
+              if (!v) applyPreview({ ...settings, background_music_credit: null })
+            }}
+            credit={settings.background_music_credit || ''}
+            onCreditChange={(v) => applyPreview({ ...settings, background_music_credit: v })}
+            placeholder="Ex: Saria's Song — The Legend of Zelda © Nintendo"
+          />
         </div>
       </Section>
 

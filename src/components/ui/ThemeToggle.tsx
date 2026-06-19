@@ -3,7 +3,12 @@
 import { useTheme } from './ThemeProvider'
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme, mounted } = useTheme()
+  const { theme, toggleTheme, mounted, locked } = useTheme()
+
+  // Theme supports a single mode: hide the toggle entirely so the user can't switch.
+  if (mounted && locked) {
+    return null
+  }
 
   // Avoid hydration mismatch by rendering a placeholder until mounted
   if (!mounted) {
