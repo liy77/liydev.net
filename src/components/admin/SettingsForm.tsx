@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import GlassCard from '@/components/ui/GlassCard'
@@ -83,6 +83,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function ExpandIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+    </svg>
+  )
+}
+
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [settings, setSettings] = useState<SiteSettings>(initialSettings)
   const [previewMode, setPreviewMode] = useState<ThemeMode>(
@@ -92,14 +100,23 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const adminMode: ThemeMode = typeof document !== 'undefined'
+    ? document.documentElement.classList.contains('light')
+      ? 'light'
+      : 'dark'
+    : 'dark'
 
   const previewKey = useMemo(() => {
     return JSON.stringify({ ...settings, background_image: previewImage, previewMode })
   }, [settings, previewImage, previewMode])
 
-  const applyPreview = (next: SiteSettings, mode: ThemeMode = previewMode) => {
+  const applyPreview = (next: SiteSettings) => {
     setSettings(next)
-    applySettingsToCSS(next, mode)
+    // Only repaint the admin UI using the admin's own active mode so the preview toggle
+    // does not change the appearance page itself.
+    applySettingsToCSS(next, adminMode)
   }
 
   const handleColorChange = (key: keyof SiteSettings, value: string) => {
@@ -204,7 +221,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
       })
       if (res.ok) {
         const fresh = await fetch('/api/settings').then((r) => r.json())
-        applyPreview(fresh, 'dark')
+        applyPreview(fresh)
         setPreviewImage(null)
         setPreviewMode('dark')
         setMessage('Tema padrão restaurado')
@@ -215,6 +232,13 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
       setMessage('Erro de rede ao restaurar padrão')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const openPreviewFullscreen = () => {
+    const iframe = iframeRef.current
+    if (iframe && iframe.requestFullscreen) {
+      iframe.requestFullscreen().catch(() => {})
     }
   }
 
@@ -229,7 +253,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
               const next = { ...settings, theme_mode: mode }
               const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
               setPreviewMode(effectiveMode)
-              applyPreview(next, effectiveMode)
+              applyPreview(next)
             }}
             className="bg-theme-surface border border-theme-border rounded-xl px-4 py-2 text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
           >
@@ -357,33 +381,45 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
       </Section>
 
       <Section title="Preview ao vivo">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="text-sm text-theme-secondary">Preview modo:</span>
           <div className="flex gap-2">
             <Button
               type="button"
               variant={previewMode === 'dark' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setPreviewMode('dark')
-                applyPreview(settings, 'dark')
-              }}
+              onClick={() => setPreviewMode('dark')}
             >
               Escuro
             </Button>
             <Button
               type="button"
               variant={previewMode === 'light' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setPreviewMode('light')
-                applyPreview(settings, 'light')
-              }}
+              onClick={() => setPreviewMode('light')}
             >
               Claro
             </Button>
           </div>
+          <Button
+            type="button"
+            variant="secondary"
+            className="gap-2"
+            onClick={openPreviewFullscreen}
+          >
+            <ExpandIcon />
+            <span>Expandir</span>
+          </Button>
+          <a
+            href={`/?theme=${previewMode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-theme-secondary hover:text-theme-primary underline"
+          >
+            Abrir em nova aba
+          </a>
         </div>
         <div className="rounded-xl border border-theme-border overflow-hidden">
           <iframe
+            ref={iframeRef}
             key={previewKey}
             src={`/?theme=${previewMode}`}
             title="Preview do site"
