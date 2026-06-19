@@ -31,23 +31,34 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme') as Theme | null
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const initial = saved || (prefersDark ? 'dark' : 'light')
-    setTheme(initial)
-    document.documentElement.classList.toggle('light', initial === 'light')
-    document.documentElement.classList.toggle('dark', initial === 'dark')
-
     fetch('/api/settings')
       .then((res) => (res.ok ? res.json() : null))
       .then((settings: SiteSettings | null) => {
-        if (settings) {
-          applySettingsToCSS(settings)
-        }
-      })
-      .catch(() => {})
+        const saved = localStorage.getItem('theme') as Theme | null
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        const initialMode: Theme =
+          saved ||
+          (settings?.theme_mode === 'system'
+            ? prefersDark
+              ? 'dark'
+              : 'light'
+            : settings?.theme_mode === 'light'
+              ? 'light'
+              : 'dark')
 
-    setMounted(true)
+        setTheme(initialMode)
+        if (settings) {
+          applySettingsToCSS(settings, initialMode)
+        } else {
+          document.documentElement.classList.toggle('light', initialMode === 'light')
+          document.documentElement.classList.toggle('dark', initialMode === 'dark')
+        }
+        setMounted(true)
+      })
+      .catch(() => {
+        document.documentElement.classList.add('dark')
+        setMounted(true)
+      })
   }, [])
 
   const toggleTheme = () => {
@@ -56,6 +67,13 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     localStorage.setItem('theme', newTheme)
     document.documentElement.classList.toggle('light', newTheme === 'light')
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
+
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((settings: SiteSettings | null) => {
+        if (settings) applySettingsToCSS(settings, newTheme)
+      })
+      .catch(() => {})
   }
 
   return (
