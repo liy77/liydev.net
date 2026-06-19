@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Mocida</title>
+  <!-- The Mocida mark: two overlapping rounded squares (blue + red). -->
+  <rect x="2.5" y="2.5" width="13" height="13" rx="3" fill="#5271ff"/>
+  <rect x="8.5" y="8.5" width="13" height="13" rx="3" fill="#ff3131"/>
+</svg>
