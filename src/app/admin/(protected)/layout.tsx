@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen px-6 py-8 max-w-5xl mx-auto">
+    <div className="min-h-screen px-4 md:px-6 py-8 max-w-5xl mx-auto">
       <AdminHeader email={user.email} />
       {children}
     </div>
