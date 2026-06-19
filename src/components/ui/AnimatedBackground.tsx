@@ -25,7 +25,20 @@ export default function AnimatedBackground() {
     if (!ctx) return
 
     const root = document.documentElement
-    const getVar = (name: string) => getComputedStyle(root).getPropertyValue(name).trim()
+    const themeColors = {
+      '--canvas-start': '#0a0a0f',
+      '--canvas-mid': '#1a1a2e',
+      '--canvas-end': '#0f0f1a',
+      '--particle-color': 'rgba(255, 255, 255, 0.4)',
+      '--particle-line': 'rgba(255, 255, 255, 0.05)',
+      '--blob-blue': 'rgba(56, 189, 248, 0.12)',
+      '--blob-purple': 'rgba(168, 85, 247, 0.1)',
+      '--blob-pink': 'rgba(236, 72, 153, 0.08)',
+    }
+    const getVar = (name: keyof typeof themeColors) => {
+      const value = getComputedStyle(root).getPropertyValue(name).trim()
+      return value || themeColors[name]
+    }
 
     let animationFrameId: number
     let width = window.innerWidth
