@@ -1,42 +1,105 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import GlassCard from '@/components/ui/GlassCard'
-import { applySettingsToCSS } from '@/lib/theme'
+import { applySettingsToCSS, rgbaToHex, type ThemeMode } from '@/lib/theme'
 import type { SiteSettings } from '@/lib/settings'
 
 interface SettingsFormProps {
   initialSettings: SiteSettings
 }
 
-const colorFields: { key: keyof SiteSettings; label: string }[] = [
+const darkFields: { key: keyof SiteSettings; label: string }[] = [
   { key: 'background_start', label: 'Fundo (início)' },
-  { key: 'background_end', label: 'Fundo (fim)' },
   { key: 'background_mid', label: 'Fundo (meio)' },
+  { key: 'background_end', label: 'Fundo (fim)' },
   { key: 'text_primary', label: 'Texto primário' },
   { key: 'accent_color', label: 'Cor de destaque' },
 ]
 
-const textFields: { key: keyof SiteSettings; label: string }[] = [
+const darkTextFields: { key: keyof SiteSettings; label: string }[] = [
   { key: 'text_secondary', label: 'Texto secundário' },
   { key: 'text_muted', label: 'Texto muted' },
-  { key: 'glass_bg', label: 'Glass background' },
-  { key: 'glass_border', label: 'Glass border' },
-  { key: 'glass_border_highlight', label: 'Glass border highlight' },
+  { key: 'glass_bg', label: 'Glass fundo' },
+  { key: 'glass_border', label: 'Glass borda' },
+  { key: 'glass_border_highlight', label: 'Glass destaque' },
 ]
+
+const lightFields: { key: keyof SiteSettings; label: string }[] = [
+  { key: 'background_start_light', label: 'Fundo claro (início)' },
+  { key: 'background_mid_light', label: 'Fundo claro (meio)' },
+  { key: 'background_end_light', label: 'Fundo claro (fim)' },
+  { key: 'text_primary_light', label: 'Texto primário claro' },
+  { key: 'accent_color_light', label: 'Cor de destaque claro' },
+]
+
+const lightTextFields: { key: keyof SiteSettings; label: string }[] = [
+  { key: 'text_secondary_light', label: 'Texto secundário claro' },
+  { key: 'text_muted_light', label: 'Texto muted claro' },
+  { key: 'glass_bg_light', label: 'Glass fundo claro' },
+  { key: 'glass_border_light', label: 'Glass borda claro' },
+  { key: 'glass_border_highlight_light', label: 'Glass destaque claro' },
+]
+
+function toHex(value: string): string {
+  if (value.startsWith('#')) return value.slice(0, 7)
+  if (value.startsWith('rgba') || value.startsWith('rgb')) return rgbaToHex(value)
+  return '#000000'
+}
+
+function ColorInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="text-sm text-theme-secondary">{label}</label>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          value={toHex(value)}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-12 h-12 rounded-xl bg-transparent border border-theme-border cursor-pointer shrink-0 overflow-hidden"
+        />
+        <Input type="text" value={value} onChange={(e) => onChange(e.target.value)} />
+      </div>
+    </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <GlassCard>
+      <h2 className="text-xl font-semibold text-theme-primary mb-4">{title}</h2>
+      {children}
+    </GlassCard>
+  )
+}
 
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [settings, setSettings] = useState<SiteSettings>(initialSettings)
+  const [previewMode, setPreviewMode] = useState<ThemeMode>(
+    initialSettings.theme_mode === 'light' ? 'light' : 'dark'
+  )
   const [previewImage, setPreviewImage] = useState<string | null>(initialSettings.background_image)
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  const applyPreview = (next: SiteSettings) => {
+  const previewKey = useMemo(() => {
+    return JSON.stringify({ ...settings, background_image: previewImage, previewMode })
+  }, [settings, previewImage, previewMode])
+
+  const applyPreview = (next: SiteSettings, mode: ThemeMode = previewMode) => {
     setSettings(next)
-    applySettingsToCSS(next)
+    applySettingsToCSS(next, mode)
   }
 
   const handleColorChange = (key: keyof SiteSettings, value: string) => {
@@ -111,23 +174,39 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          theme_mode: 'dark',
           background_start: '#0a0a0f',
           background_end: '#1a1a2e',
           background_mid: '#0f0f1a',
+          background_start_light: '#f0f0f5',
+          background_end_light: '#e3e3e9',
+          background_mid_light: '#ebebf0',
           text_primary: '#f5f5f7',
           text_secondary: 'rgba(255, 255, 255, 0.7)',
           text_muted: 'rgba(255, 255, 255, 0.5)',
+          text_primary_light: '#1d1d1f',
+          text_secondary_light: 'rgba(0, 0, 0, 0.75)',
+          text_muted_light: 'rgba(0, 0, 0, 0.55)',
           accent_color: '#38bdf8',
+          accent_color_light: '#38bdf8',
           glass_bg: 'rgba(255, 255, 255, 0.08)',
           glass_border: 'rgba(255, 255, 255, 0.18)',
           glass_border_highlight: 'rgba(255, 255, 255, 0.35)',
+          glass_bg_light: 'rgba(255, 255, 255, 0.25)',
+          glass_border_light: 'rgba(0, 0, 0, 0.12)',
+          glass_border_highlight_light: 'rgba(255, 255, 255, 0.7)',
+          text_gradient_start: '#38bdf8',
+          text_gradient_end: '#a855f7',
+          use_text_gradient: true,
+          glass_intensity: 70,
           background_image: null,
         }),
       })
       if (res.ok) {
         const fresh = await fetch('/api/settings').then((r) => r.json())
-        applyPreview(fresh)
+        applyPreview(fresh, 'dark')
         setPreviewImage(null)
+        setPreviewMode('dark')
         setMessage('Tema padrão restaurado')
       } else {
         setMessage('Erro ao restaurar padrão')
@@ -141,28 +220,40 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <GlassCard>
-        <h2 className="text-xl font-semibold text-theme-primary mb-4">Cores do tema</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {colorFields.map((field) => (
-            <div key={field.key} className="space-y-1">
-              <label className="text-sm text-theme-secondary">{field.label}</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={settings[field.key] as string}
-                  onChange={(e) => handleColorChange(field.key, e.target.value)}
-                  className="w-10 h-10 rounded-lg bg-transparent border-0 cursor-pointer shrink-0"
-                />
-                <Input
-                  type="text"
-                  value={settings[field.key] as string}
-                  onChange={(e) => handleColorChange(field.key, e.target.value)}
-                />
-              </div>
-            </div>
+      <Section title="Modo padrão do site">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <select
+            value={settings.theme_mode}
+            onChange={(e) => {
+              const mode = e.target.value as SiteSettings['theme_mode']
+              const next = { ...settings, theme_mode: mode }
+              const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
+              setPreviewMode(effectiveMode)
+              applyPreview(next, effectiveMode)
+            }}
+            className="bg-theme-surface border border-theme-border rounded-xl px-4 py-2 text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
+          >
+            <option value="dark">Escuro</option>
+            <option value="light">Claro</option>
+            <option value="system">Sistema</option>
+          </select>
+          <p className="text-sm text-theme-secondary">
+            Define qual tema o site carrega por padrão para novos visitantes.
+          </p>
+        </div>
+      </Section>
+
+      <Section title="Paleta escura">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {darkFields.map((field) => (
+            <ColorInput
+              key={field.key}
+              label={field.label}
+              value={settings[field.key] as string}
+              onChange={(v) => handleColorChange(field.key, v)}
+            />
           ))}
-          {textFields.map((field) => (
+          {darkTextFields.map((field) => (
             <div key={field.key} className="space-y-1">
               <label className="text-sm text-theme-secondary">{field.label}</label>
               <Input
@@ -173,36 +264,133 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             </div>
           ))}
         </div>
-      </GlassCard>
+      </Section>
 
-      <GlassCard>
-        <h2 className="text-xl font-semibold text-theme-primary mb-4">Imagem de fundo</h2>
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={handleImageChange}
-          disabled={uploading}
-          className="block mb-4 text-theme-secondary"
-        />
-        {uploading && <p className="text-theme-muted text-sm mb-2">Enviando...</p>}
+      <Section title="Paleta clara">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {lightFields.map((field) => (
+            <ColorInput
+              key={field.key}
+              label={field.label}
+              value={settings[field.key] as string}
+              onChange={(v) => handleColorChange(field.key, v)}
+            />
+          ))}
+          {lightTextFields.map((field) => (
+            <div key={field.key} className="space-y-1">
+              <label className="text-sm text-theme-secondary">{field.label}</label>
+              <Input
+                type="text"
+                value={(settings[field.key] as string) || ''}
+                onChange={(e) => handleTextChange(field.key, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Gradiente de fonte">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.use_text_gradient}
+              onChange={(e) => applyPreview({ ...settings, use_text_gradient: e.target.checked })}
+              className="w-5 h-5 rounded border-theme-border bg-theme-surface text-accent-blue focus:ring-accent-blue"
+            />
+            <span className="text-theme-primary">Usar gradiente no título</span>
+          </label>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ColorInput
+            label="Início do gradiente"
+            value={settings.text_gradient_start}
+            onChange={(v) => handleColorChange('text_gradient_start', v)}
+          />
+          <ColorInput
+            label="Fim do gradiente"
+            value={settings.text_gradient_end}
+            onChange={(v) => handleColorChange('text_gradient_end', v)}
+          />
+        </div>
+      </Section>
+
+      <Section title="Intensidade do liquid glass">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-theme-secondary">Blur + saturação</span>
+            <span className="text-sm font-medium text-theme-primary">{settings.glass_intensity}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={settings.glass_intensity}
+            onChange={(e) => applyPreview({ ...settings, glass_intensity: Number(e.target.value) })}
+            className="w-full accent-[var(--accent-blue)]"
+          />
+          <p className="text-sm text-theme-secondary">0 = quase plano · 100 = glass bem líquido</p>
+        </div>
+      </Section>
+
+      <Section title="Imagem de fundo">
+        <label className="glass-button inline-flex items-center justify-center gap-2 px-4 py-2 cursor-pointer text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Escolher imagem de fundo</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleImageChange}
+            disabled={uploading}
+            className="hidden"
+          />
+        </label>
+        {uploading && <p className="text-theme-muted text-sm mt-2">Enviando...</p>}
         {previewImage && (
-          <div className="space-y-2">
-            <img src={previewImage} alt="Preview" className="w-full max-w-md rounded-xl" />
+          <div className="mt-4 space-y-3">
+            <img src={previewImage} alt="Preview" className="w-full max-w-md rounded-xl border border-theme-border" />
             <Button type="button" variant="danger" onClick={handleRemoveImage}>
               Remover imagem
             </Button>
           </div>
         )}
-      </GlassCard>
+      </Section>
 
-      <GlassCard>
-        <h2 className="text-xl font-semibold text-theme-primary mb-4">Preview</h2>
-        <div className="p-6 rounded-xl bg-theme-surface border border-theme-border space-y-4">
-          <p className="text-theme-primary font-medium">Título de exemplo</p>
-          <p className="text-theme-secondary text-sm">Texto secundário de exemplo.</p>
-          <Button>Botão de exemplo</Button>
+      <Section title="Preview ao vivo">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-sm text-theme-secondary">Preview modo:</span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={previewMode === 'dark' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setPreviewMode('dark')
+                applyPreview(settings, 'dark')
+              }}
+            >
+              Escuro
+            </Button>
+            <Button
+              type="button"
+              variant={previewMode === 'light' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setPreviewMode('light')
+                applyPreview(settings, 'light')
+              }}
+            >
+              Claro
+            </Button>
+          </div>
         </div>
-      </GlassCard>
+        <div className="rounded-xl border border-theme-border overflow-hidden">
+          <iframe
+            key={previewKey}
+            src="/"
+            title="Preview do site"
+            className="w-full h-80 sm:h-96 bg-theme-surface"
+          />
+        </div>
+      </Section>
 
       {message && <p className="text-theme-secondary text-sm">{message}</p>}
 
