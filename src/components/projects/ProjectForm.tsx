@@ -196,7 +196,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Button type="submit" disabled={loading}>
             {loading ? 'Salvando...' : 'Salvar'}
           </Button>
