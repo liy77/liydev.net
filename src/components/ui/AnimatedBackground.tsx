@@ -98,16 +98,23 @@ export default function AnimatedBackground() {
     const themeObserver = new MutationObserver(updateThemeColors)
     themeObserver.observe(root, { attributes: true, attributeFilter: ['class'] })
 
+    const hasBackgroundImage = () => {
+      const bg = getComputedStyle(root).backgroundImage
+      return bg && bg !== 'none'
+    }
+
     const animate = () => {
       ctx.clearRect(0, 0, width, height)
 
-      // Draw base gradient
-      const baseGradient = ctx.createLinearGradient(0, 0, width, height)
-      baseGradient.addColorStop(0, getVar('--canvas-start'))
-      baseGradient.addColorStop(0.5, getVar('--canvas-mid'))
-      baseGradient.addColorStop(1, getVar('--canvas-end'))
-      ctx.fillStyle = baseGradient
-      ctx.fillRect(0, 0, width, height)
+      // Draw base gradient only when no background image is set
+      if (!hasBackgroundImage()) {
+        const baseGradient = ctx.createLinearGradient(0, 0, width, height)
+        baseGradient.addColorStop(0, getVar('--canvas-start'))
+        baseGradient.addColorStop(0.5, getVar('--canvas-mid'))
+        baseGradient.addColorStop(1, getVar('--canvas-end'))
+        ctx.fillStyle = baseGradient
+        ctx.fillRect(0, 0, width, height)
+      }
 
       // Mouse spotlight
       if (mouseRef.current.active) {
