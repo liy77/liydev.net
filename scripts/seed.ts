@@ -38,7 +38,7 @@ async function seed() {
       description: `Copper é uma linguagem de alto nível que transpila para Rust. Ela combina a performance do Rust com uma sintaxe que parece uma linguagem de script moderna: interpolação de strings, optional chaining, ternários, e formas de loop/match/closure no estilo JavaScript.
 
 O toolchain "cforge" cuida da compilação, instalação e execução de projetos Copper. A linguagem suporta classes, imports, e uma std crescente.`,
-      image_path: '/uploads/copper-lang.png',
+      image_path: '/uploads/thumbnails/copper-lang.webp',
       github_url: 'https://github.com/liy77/copper-lang',
       website_url: '',
       display_order: 0,
@@ -50,7 +50,7 @@ O toolchain "cforge" cuida da compilação, instalação e execução de projeto
       description: `Mocida é um toolkit de UI modular escrito em C sobre SDL3. O monorepo inclui a biblioteca C, bindings Rust (mocida-sys + mocida idiomático), e um build orchestrator em Python que compila tudo em um único comando cross-platform.
 
 Foi projetada para ser leve, nativa e sem depender de stacks web.`,
-      image_path: '/uploads/mocida.svg',
+      image_path: '/uploads/thumbnails/mocida.webp',
       github_url: 'https://github.com/liy77/mocida',
       website_url: '',
       display_order: 1,
@@ -62,7 +62,7 @@ Foi projetada para ser leve, nativa e sem depender de stacks web.`,
       description: `OndaEngine é uma engine de jogos 2D com editor completo. O editor tem visual VSCode — file tree, editor com syntax highlighting, inspector, scene view e play mode — e é escrito inteiramente em MUI, o sistema declarativo de UI do Mocida.
 
 O host é Rust, a engine é Copper, e a renderização é SDL3 nativa, sem Electron, sem web stack.`,
-      image_path: '/uploads/ondaengine.png',
+      image_path: '/uploads/thumbnails/ondaengine.webp',
       github_url: 'https://github.com/liy77/OndaEngine',
       website_url: '',
       display_order: 2,

@@ -1,0 +1,78 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Chamados / Ordens de Serviço" [level=2] [ref=e6]
+      - button "add Nova Tarefa" [ref=e7] [cursor=pointer]:
+        - generic [ref=e9]: add
+        - generic [ref=e10]: Nova Tarefa
+    - generic [ref=e11]:
+      - img
+      - textbox "Buscar por título ou descrição..." [ref=e12]
+    - generic [ref=e13]:
+      - tablist [ref=e15]:
+        - tab "Todos" [selected] [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: Todos
+        - tab "Aberta" [ref=e18] [cursor=pointer]:
+          - generic [ref=e19]: Aberta
+        - tab "Concluída" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: Concluída
+        - tab "Em andamento" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: Em andamento
+        - tab "Aguard. conf." [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: Aguard. conf.
+        - tab "Rejeitada" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: Rejeitada
+        - tab "Cancelada" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: Cancelada
+      - generic [ref=e30]:
+        - combobox [ref=e31] [cursor=pointer]:
+          - option "Mais recentes" [selected]
+          - option "Mais antigas"
+          - option "Prioridade ↓"
+          - option "Prioridade ↑"
+          - option "Prazo mais próximo"
+        - img
+    - generic [ref=e32]:
+      - generic [ref=e33]: assignment
+      - heading "Nenhuma tarefa encontrada" [level=2] [ref=e34]
+      - paragraph [ref=e35]: Crie a primeira tarefa pelo botão acima.
+  - generic [ref=e37]:
+    - generic [ref=e38]:
+      - heading "Nova Tarefa" [level=2] [ref=e39]
+      - button "Fechar" [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]: close
+    - generic [ref=e42]:
+      - generic [ref=e44]:
+        - generic [ref=e80]: check
+        - generic [ref=e46]: Dados
+      - generic [ref=e49]:
+        - generic [ref=e50]: "2"
+        - generic [ref=e51]: Atribuição
+    - generic [ref=e81]:
+      - generic [ref=e82]:
+        - generic [ref=e83]: Agente(s) responsável(is)
+        - generic [ref=e84]: Quem vai executar a tarefa. Opcional — deixe vazio para atribuir depois.
+        - generic [ref=e85]:
+          - generic [ref=e86]: group_off
+          - generic [ref=e87]: Nenhum agente atribuído
+        - generic [ref=e89]:
+          - img
+          - textbox "Buscar agente por nome…" [ref=e90]
+      - generic [ref=e91]:
+        - generic [ref=e92]: Para quem é a tarefa — unidade / morador
+        - generic [ref=e94]:
+          - textbox "Buscar por unidade ou nome — opcional" [ref=e95]
+          - generic:
+            - img
+        - generic [ref=e96]: Vincule o morador/unidade beneficiário. Vazio = tarefa interna da equipe.
+      - generic [ref=e97] [cursor=pointer]:
+        - generic [ref=e98]:
+          - checkbox "Exige conferência do supervisor" [ref=e99]
+          - img
+        - generic [ref=e101]: Exige conferência do supervisor
+    - generic [ref=e73]:
+      - button "arrow_back Voltar" [ref=e102] [cursor=pointer]:
+        - generic [ref=e104]: arrow_back
+        - generic [ref=e75]: Voltar
+      - button "Criar tarefa" [active] [ref=e105] [cursor=pointer]:
+        - generic [ref=e77]: Criar tarefa

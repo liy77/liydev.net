@@ -1,0 +1,88 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Chamados / Ordens de Serviço" [level=2] [ref=e6]
+      - button "add Nova Tarefa" [ref=e7] [cursor=pointer]:
+        - generic [ref=e9]: add
+        - generic [ref=e10]: Nova Tarefa
+    - generic [ref=e11]:
+      - img
+      - textbox "Buscar por título ou descrição..." [ref=e12]
+    - generic [ref=e13]:
+      - tablist [ref=e15]:
+        - tab "Todos" [selected] [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: Todos
+        - tab "Aberta" [ref=e18] [cursor=pointer]:
+          - generic [ref=e19]: Aberta
+        - tab "Concluída" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: Concluída
+        - tab "Em andamento" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: Em andamento
+        - tab "Aguard. conf." [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: Aguard. conf.
+        - tab "Rejeitada" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: Rejeitada
+        - tab "Cancelada" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: Cancelada
+      - generic [ref=e30]:
+        - combobox [ref=e31] [cursor=pointer]:
+          - option "Mais recentes" [selected]
+          - option "Mais antigas"
+          - option "Prioridade ↓"
+          - option "Prioridade ↑"
+          - option "Prazo mais próximo"
+        - img
+    - generic [ref=e32]:
+      - generic [ref=e33]: assignment
+      - heading "Nenhuma tarefa encontrada" [level=2] [ref=e34]
+      - paragraph [ref=e35]: Crie a primeira tarefa pelo botão acima.
+  - generic [active] [ref=e37]:
+    - generic [ref=e38]:
+      - heading "Nova Tarefa" [level=2] [ref=e39]
+      - button "Fechar" [ref=e40] [cursor=pointer]:
+        - generic [ref=e41]: close
+    - generic [ref=e42]:
+      - generic [ref=e44]:
+        - generic [ref=e45]: "1"
+        - generic [ref=e46]: Dados
+      - generic [ref=e49]:
+        - generic [ref=e50]: "2"
+        - generic [ref=e51]: Atribuição
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]: Título*
+        - textbox [ref=e56]
+      - generic [ref=e57]:
+        - generic [ref=e58]: Descrição
+        - textbox [ref=e59]
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e62]: Categoria
+          - generic [ref=e63]:
+            - combobox [ref=e64] [cursor=pointer]:
+              - option "—" [selected]
+              - option "Manutenção"
+              - option "Limpeza"
+              - option "Segurança"
+              - option "Outros"
+            - img
+        - generic [ref=e65]:
+          - generic [ref=e66]: Prioridade
+          - generic [ref=e67]:
+            - combobox [ref=e68] [cursor=pointer]:
+              - option "Baixa"
+              - option "Normal" [selected]
+              - option "Alta"
+              - option "Urgente"
+            - img
+      - generic [ref=e69]:
+        - generic [ref=e70]: Prazo
+        - generic [ref=e71]:
+          - textbox [ref=e72]
+          - generic: calendar_month
+    - generic [ref=e73]:
+      - button "Cancelar" [ref=e74] [cursor=pointer]:
+        - generic [ref=e75]: Cancelar
+      - button "Avançar arrow_forward" [ref=e76] [cursor=pointer]:
+        - generic [ref=e77]: Avançar
+        - generic [ref=e79]: arrow_forward

@@ -1,0 +1,37 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "Chamados / Ordens de Serviço" [level=2] [ref=e6]
+    - button "add Nova Tarefa" [ref=e7] [cursor=pointer]:
+      - generic [ref=e9]: add
+      - generic [ref=e10]: Nova Tarefa
+  - generic [ref=e11]:
+    - img
+    - textbox "Buscar por título ou descrição..." [ref=e12]
+  - generic [ref=e13]:
+    - tablist [ref=e15]:
+      - tab "Todos" [selected] [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]: Todos
+      - tab "Aberta" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]: Aberta
+      - tab "Concluída" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Concluída
+      - tab "Em andamento" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: Em andamento
+      - tab "Aguard. conf." [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: Aguard. conf.
+      - tab "Rejeitada" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Rejeitada
+      - tab "Cancelada" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: Cancelada
+    - generic [ref=e30]:
+      - combobox [ref=e31] [cursor=pointer]:
+        - option "Mais recentes" [selected]
+        - option "Mais antigas"
+        - option "Prioridade ↓"
+        - option "Prioridade ↑"
+        - option "Prazo mais próximo"
+      - img
+  - generic [ref=e106]:
+    - generic [ref=e107]: assignment
+    - heading "Nenhuma tarefa encontrada" [level=2] [ref=e108]
+    - paragraph [ref=e109]: Crie a primeira tarefa pelo botão acima.
