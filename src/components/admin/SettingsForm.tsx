@@ -385,7 +385,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
         <div className="rounded-xl border border-theme-border overflow-hidden">
           <iframe
             key={previewKey}
-            src="/"
+            src={`/?theme=${previewMode}`}
             title="Preview do site"
             className="w-full h-80 sm:h-96 bg-theme-surface"
           />

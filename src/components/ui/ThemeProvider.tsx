@@ -31,12 +31,15 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    const urlMode = new URLSearchParams(window.location.search).get('theme') as Theme | null
+
     fetch('/api/settings')
       .then((res) => (res.ok ? res.json() : null))
       .then((settings: SiteSettings | null) => {
         const saved = localStorage.getItem('theme') as Theme | null
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
         const initialMode: Theme =
+          urlMode ||
           saved ||
           (settings?.theme_mode === 'system'
             ? prefersDark
