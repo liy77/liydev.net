@@ -36,16 +36,31 @@ END;
 
 CREATE TABLE IF NOT EXISTS site_settings (
   id INTEGER PRIMARY KEY CHECK (id = 1),
+  theme_mode TEXT NOT NULL DEFAULT 'dark',
   background_start TEXT NOT NULL DEFAULT '#0a0a0f',
   background_end TEXT NOT NULL DEFAULT '#1a1a2e',
   background_mid TEXT NOT NULL DEFAULT '#0f0f1a',
+  background_start_light TEXT NOT NULL DEFAULT '#f0f0f5',
+  background_end_light TEXT NOT NULL DEFAULT '#e3e3e9',
+  background_mid_light TEXT NOT NULL DEFAULT '#ebebf0',
   text_primary TEXT NOT NULL DEFAULT '#f5f5f7',
   text_secondary TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.7)',
   text_muted TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.5)',
+  text_primary_light TEXT NOT NULL DEFAULT '#1d1d1f',
+  text_secondary_light TEXT NOT NULL DEFAULT 'rgba(0, 0, 0, 0.75)',
+  text_muted_light TEXT NOT NULL DEFAULT 'rgba(0, 0, 0, 0.55)',
   accent_color TEXT NOT NULL DEFAULT '#38bdf8',
+  accent_color_light TEXT NOT NULL DEFAULT '#38bdf8',
   glass_bg TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.08)',
   glass_border TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.18)',
   glass_border_highlight TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.35)',
+  glass_bg_light TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.25)',
+  glass_border_light TEXT NOT NULL DEFAULT 'rgba(0, 0, 0, 0.12)',
+  glass_border_highlight_light TEXT NOT NULL DEFAULT 'rgba(255, 255, 255, 0.7)',
+  text_gradient_start TEXT NOT NULL DEFAULT '#38bdf8',
+  text_gradient_end TEXT NOT NULL DEFAULT '#a855f7',
+  use_text_gradient INTEGER NOT NULL DEFAULT 1,
+  glass_intensity INTEGER NOT NULL DEFAULT 70,
   background_image TEXT,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,7 +100,37 @@ export function getDatabase(): InstanceType<typeof Database> {
 export function initializeDatabase(): void {
   const database = getDatabase()
   database.exec(SCHEMA_SQL)
+  runMigrations(database)
   initialized = true
+}
+
+function runMigrations(database: InstanceType<typeof Database>): void {
+  const columns = database
+    .prepare<[], { name: string }>("PRAGMA table_info(site_settings)")
+    .all()
+    .map((c) => c.name)
+
+  const addColumn = (name: string, def: string) => {
+    if (!columns.includes(name)) {
+      database.exec(`ALTER TABLE site_settings ADD COLUMN ${name} ${def}`)
+    }
+  }
+
+  addColumn("theme_mode", "TEXT NOT NULL DEFAULT 'dark'")
+  addColumn("background_start_light", "TEXT NOT NULL DEFAULT '#f0f0f5'")
+  addColumn("background_end_light", "TEXT NOT NULL DEFAULT '#e3e3e9'")
+  addColumn("background_mid_light", "TEXT NOT NULL DEFAULT '#ebebf0'")
+  addColumn("text_primary_light", "TEXT NOT NULL DEFAULT '#1d1d1f'")
+  addColumn("text_secondary_light", "TEXT NOT NULL DEFAULT 'rgba(0,0,0,0.75)'")
+  addColumn("text_muted_light", "TEXT NOT NULL DEFAULT 'rgba(0,0,0,0.55)'")
+  addColumn("accent_color_light", "TEXT NOT NULL DEFAULT '#38bdf8'")
+  addColumn("glass_bg_light", "TEXT NOT NULL DEFAULT 'rgba(255,255,255,0.25)'")
+  addColumn("glass_border_light", "TEXT NOT NULL DEFAULT 'rgba(0,0,0,0.12)'")
+  addColumn("glass_border_highlight_light", "TEXT NOT NULL DEFAULT 'rgba(255,255,255,0.7)'")
+  addColumn("text_gradient_start", "TEXT NOT NULL DEFAULT '#38bdf8'")
+  addColumn("text_gradient_end", "TEXT NOT NULL DEFAULT '#a855f7'")
+  addColumn("use_text_gradient", "INTEGER NOT NULL DEFAULT 1")
+  addColumn("glass_intensity", "INTEGER NOT NULL DEFAULT 70")
 }
 
 /**
