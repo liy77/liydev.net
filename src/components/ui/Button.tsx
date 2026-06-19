@@ -15,7 +15,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = forwardRef<HTMLElement, ButtonProps>(
   ({ variant = 'primary', className = '', children, asChild, ...props }, ref) => {
-    const baseStyles = 'px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+    const baseStyles = 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
     const variants = {
       primary: 'glass-button text-white',
       secondary: 'bg-theme-surface border border-theme-border text-theme-primary hover:bg-theme-surface hover:border-theme-secondary',
