@@ -31,6 +31,12 @@ export default function AdminHeader({ email }: AdminHeaderProps) {
         <Link href="/admin/projects" className="text-xl font-bold text-gradient shrink-0">
           Admin
         </Link>
+        <Link href="/admin/projects" className="hidden md:inline text-sm text-theme-secondary hover:text-theme-primary transition-colors">
+          Projetos
+        </Link>
+        <Link href="/admin/settings" className="text-sm text-theme-secondary hover:text-theme-primary transition-colors">
+          Aparência
+        </Link>
         <span className="hidden md:inline text-theme-muted text-sm truncate">
           {email}
         </span>
