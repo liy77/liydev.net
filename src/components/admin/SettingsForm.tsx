@@ -3,7 +3,9 @@
 import { useMemo, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
 import GlassCard from '@/components/ui/GlassCard'
+import ThemePresets from './ThemePresets'
 import { applySettingsToCSS, rgbaToHex, type ThemeMode } from '@/lib/theme'
 import type { SiteSettings } from '@/lib/settings'
 
@@ -246,21 +248,22 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Section title="Modo padrão do site">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <select
-            value={settings.theme_mode}
-            onChange={(e) => {
-              const mode = e.target.value as SiteSettings['theme_mode']
-              const next = { ...settings, theme_mode: mode }
-              const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
-              setPreviewMode(effectiveMode)
-              applyPreview(next)
-            }}
-            className="bg-theme-surface border border-theme-border rounded-xl px-4 py-2 text-theme-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
-          >
-            <option value="dark">Escuro</option>
-            <option value="light">Claro</option>
-            <option value="system">Sistema</option>
-          </select>
+          <div className="w-full sm:w-48">
+            <Select
+              value={settings.theme_mode}
+              onChange={(e) => {
+                const mode = e.target.value as SiteSettings['theme_mode']
+                const next = { ...settings, theme_mode: mode }
+                const effectiveMode: ThemeMode = mode === 'light' ? 'light' : 'dark'
+                setPreviewMode(effectiveMode)
+                applyPreview(next)
+              }}
+            >
+              <option value="dark">Escuro</option>
+              <option value="light">Claro</option>
+              <option value="system">Sistema</option>
+            </Select>
+          </div>
           <p className="text-sm text-theme-secondary">
             Define qual tema o site carrega por padrão para novos visitantes.
           </p>
@@ -426,6 +429,10 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             className="w-full h-80 sm:h-96 bg-theme-surface"
           />
         </div>
+      </Section>
+
+      <Section title="Temas salvos">
+        <ThemePresets currentSettings={{ ...settings, background_image: previewImage }} onLoad={applyPreview} />
       </Section>
 
       {message && <p className="text-theme-secondary text-sm">{message}</p>}

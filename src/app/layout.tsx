@@ -14,6 +14,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'liy.dev — Portfolio',
   description: 'Projetos pessoais de desenvolvimento de software',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
