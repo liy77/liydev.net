@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import fs from 'fs'
 import path from 'path'
+import { seedDefaultPresets } from './themePresets'
 
 let db: InstanceType<typeof Database> | null = null
 let initialized = false
@@ -108,6 +109,7 @@ export function initializeDatabase(): void {
   const database = getDatabase()
   database.exec(SCHEMA_SQL)
   runMigrations(database)
+  seedDefaultPresets()
   initialized = true
 }
 
