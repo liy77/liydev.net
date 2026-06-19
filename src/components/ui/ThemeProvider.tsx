@@ -1,6 +1,8 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { applySettingsToCSS } from '@/lib/theme'
+import type { SiteSettings } from '@/lib/settings'
 
 type Theme = 'light' | 'dark'
 
@@ -35,6 +37,16 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     setTheme(initial)
     document.documentElement.classList.toggle('light', initial === 'light')
     document.documentElement.classList.toggle('dark', initial === 'dark')
+
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((settings: SiteSettings | null) => {
+        if (settings) {
+          applySettingsToCSS(settings)
+        }
+      })
+      .catch(() => {})
+
     setMounted(true)
   }, [])
 
