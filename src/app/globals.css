@@ -60,22 +60,22 @@ html.dark {
 }
 
 html.light {
-  --background-start: #f5f5f7;
-  --background-end: #e8e8ed;
-  --background-mid: #f0f0f5;
+  --background-start: #f0f0f5;
+  --background-end: #e3e3e9;
+  --background-mid: #ebebf0;
   --text-primary: #1d1d1f;
-  --text-secondary: rgba(0, 0, 0, 0.7);
-  --text-muted: rgba(0, 0, 0, 0.5);
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-bg-gradient: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-border-highlight: rgba(255, 255, 255, 0.9);
-  --glass-shadow: rgba(0, 0, 0, 0.08);
-  --glass-inner-glow: rgba(255, 255, 255, 0.6);
-  --surface: rgba(0, 0, 0, 0.04);
-  --surface-hover: rgba(0, 0, 0, 0.08);
-  --focus-ring: rgba(0, 0, 0, 0.1);
-  --focus-border: rgba(0, 0, 0, 0.25);
+  --text-secondary: rgba(0, 0, 0, 0.75);
+  --text-muted: rgba(0, 0, 0, 0.55);
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-bg-gradient: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(0, 0, 0, 0.12);
+  --glass-border-highlight: rgba(255, 255, 255, 0.7);
+  --glass-shadow: rgba(0, 0, 0, 0.06);
+  --glass-inner-glow: rgba(255, 255, 255, 0.4);
+  --surface: rgba(0, 0, 0, 0.05);
+  --surface-hover: rgba(0, 0, 0, 0.1);
+  --focus-ring: rgba(0, 0, 0, 0.12);
+  --focus-border: rgba(0, 0, 0, 0.3);
   --canvas-start: #f5f5f7;
   --canvas-mid: #f0f0f5;
   --canvas-end: #e8e8ed;
